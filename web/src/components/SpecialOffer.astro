@@ -1,0 +1,53 @@
+---
+import "../styles/global.css";
+import { Image } from 'astro:assets';
+import image from '../assets/sausages-grill-pan-wooden-table.jpg'
+---
+
+<section class="py-16 bg-gradient-to-r from-orange-600 to-red-700 text-white">
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+      <div class="md:w-1/2">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">4D PLAN - No Boring Snacks!</h2>
+        <p class="text-lg mb-6">Get our amazing 4-day savage combo with 40 delicious items that will satisfy your cravings.</p>
+        <ul class="mb-8 space-y-2">
+          <li class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span>10 Sausage Rolls</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span>10 Spring Rolls</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span>10 Beef Samosas</span>
+          </li>
+          <li class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <span>10 Shawarma Halves</span>
+          </li>
+        </ul>
+        <a href="#order" class="inline-block bg-gray-700 text-primary font-bold py-3 px-8 rounded-full hover:bg-red-500 transition-colors">
+          Order Combo Now
+        </a>
+      </div>
+      
+      <div class="md:w-1/2">
+        <Image 
+          src={image} 
+          alt="4D Savage Combo Plan" 
+          class="rounded-lg shadow-lg w-full max-w-lg mx-auto"
+        />
+      </div>
+    </div>
+  </div>
+</section>

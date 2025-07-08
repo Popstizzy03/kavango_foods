@@ -1,0 +1,134 @@
+---
+import "../styles/global.css";
+
+import { Image } from 'astro:assets'
+import sausage from '../assets/sausage-goodness.jpg'
+import wrap from '../assets/tasty-wraps.jpg'
+import samosa from '../assets/beef-samosas.jpg'
+import combo from '../assets/combo-meals.png'
+
+const categories = [
+  {
+    id: 'sausages',
+    name: 'Sausage Goodness',
+    image: sausage,
+    description: 'Premium quality sausages grilled to perfection',
+    featured: true
+  },
+  {
+    id: 'wraps',
+    name: 'Tasty Wraps',
+    image: wrap,
+    description: 'Flavorful fillings wrapped in soft tortillas',
+    featured: true
+  },
+  {
+    id: 'samosas',
+    name: 'Beef Samosas',
+    image: samosa,
+    description: 'Crispy pastry filled with spiced beef',
+    featured: true
+  },
+  {
+    id: 'combos',
+    name: 'Combo Meals',
+    image: combo,
+    description: 'Perfect combinations for any appetite',
+    featured: true
+  }
+];
+
+const popularItems = [
+  {
+    name: 'Classic Beef Sausage',
+    price: 'K15.00',
+    image: sausage,
+    description: 'Premium beef sausage with our signature spice blend'
+  },
+  {
+    name: 'New Flava Wrap',
+    price: 'K35.00',
+    image: wrap,
+    description: 'Our newest wrap with chicken, veggies and special sauce'
+  },
+  {
+    name: 'Beef Samosa (3 pcs)',
+    price: 'K25.00',
+    image: samosa,
+    description: 'Crispy triangular pastry filled with spiced minced beef'
+  },
+  {
+    name: '4D Savage Combo',
+    price: 'K120.00',
+    image: combo,
+    description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves'
+  }
+];
+---
+
+<section id="menu" class="section bg-white">
+  <div class="container mx-auto px-4">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl md:text-4xl font-bold mb-4">Our Tasty <span class="text-primary">Menu</span></h2>
+      <p class="text-text-light max-w-2xl mx-auto">Discover our wide range of delicious food options made from quality ingredients for your satisfaction.</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+      {categories.map(category => (
+        <div class="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div class="h-48 overflow-hidden">
+            <Image 
+              src={category.image} 
+              alt={category.name}
+              class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+            />
+          </div>
+          <div class="p-6">
+            <h3 class="text-xl font-semibold mb-2">{category.name}</h3>
+            <p class="text-text-light mb-4">{category.description}</p>
+            <a href={`/menu#${category.id}`} class="inline-flex items-center text-primary font-medium">
+              Explore
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+    
+    <div class="mb-12">
+      <div class="flex justify-between items-center mb-8">
+        <h3 class="text-2xl font-bold">Popular Items</h3>
+        <a href="/menu" class="text-primary font-medium inline-flex items-center">
+          View All Menu
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {popularItems.map(item => (
+          <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
+            <div class="h-40 overflow-hidden">
+              <Image 
+                src={item.image} 
+                alt={item.name}
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="p-4">
+              <div class="flex justify-between items-start mb-2">
+                <h4 class="font-semibold">{item.name}</h4>
+                <span class="text-primary font-bold">{item.price}</span>
+              </div>
+              <p class="text-text-light text-sm mb-4">{item.description}</p>
+              <button class="w-full btn btn-primary py-2">Add to Order</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

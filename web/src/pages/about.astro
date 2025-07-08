@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro';
+import OrderNowButton from '../components/OrderNowButton.astro';
+import "../styles/global.css";
+
+// This is a placeholder for the about page. You would expand this with actual company information.
+---
+
+<Layout title="About Us - Our Story">
+  <section class="py-16 bg-gradient-to-r from-orange-50 to-green-50">
+    <div class="container mx-auto px-4">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 text-center">About <span class="text-primary">Okavango</span> Foods</h1>
+      <p class="text-center text-text-light max-w-2xl mx-auto mb-12">
+        Learn about our journey to bring authentic African flavors to your table.
+      </p>
+      
+      <!-- About content would go here -->
+      <div class="bg-white p-8 rounded-xl shadow-md max-w-3xl mx-auto">
+        <h2 class="text-2xl font-semibold mb-4">Our Story</h2>
+        <p class="mb-4">
+          Okavango Foods was founded with a passion for sharing authentic African flavors and culinary traditions. Our journey began with a simple goal: to create delicious food that brings people together.
+        </p>
+        <p class="mb-4">
+          Named after the Okavango Delta, one of Africa's most beautiful natural wonders, our food celebrates the rich diversity and vibrant tastes of African cuisine. We carefully select quality ingredients and prepare each dish with traditional methods and modern techniques.
+        </p>
+        <p>
+          Today, we're proud to serve our community with a variety of mouthwatering options, from our signature sausages to flavorful wraps and combo meals. We remain committed to our founding principles: authentic taste, quality ingredients, and food that you can truly enjoy.
+        </p>
+      </div>
+    </div>
+  </section>
+  
+  <OrderNowButton />
+</Layout>
