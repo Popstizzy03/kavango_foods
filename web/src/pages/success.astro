@@ -1,0 +1,75 @@
+---
+import Layout from '../layouts/Layout.astro';
+import "../styles/global.css";
+---
+
+<Layout title="Order Confirmation - Okavango Foods">
+  <section class="py-16 bg-gradient-to-r from-orange-50 to-green-50">
+    <div class="container mx-auto px-4">
+      <div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-md text-center">
+        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-green-600 mx-auto mb-6">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        
+        <h1 class="text-3xl font-bold mb-4">Order Confirmed!</h1>
+        <p class="text-text-light mb-6">
+          Thank you for your order. We have received your payment and are preparing your delicious food.
+        </p>
+        
+        <div id="order-details" class="bg-gray-50 p-6 rounded-lg mb-6 text-left">
+          <h2 class="text-xl font-semibold mb-4">Order Details</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-text-light mb-1">Order Number:</p>
+              <p id="order-number" class="font-medium">-</p>
+            </div>
+            <div>
+              <p class="text-text-light mb-1">Date:</p>
+              <p id="order-date" class="font-medium">-</p>
+            </div>
+            <div>
+              <p class="text-text-light mb-1">Total Amount:</p>
+              <p id="order-total" class="font-medium">-</p>
+            </div>
+            <div>
+              <p class="text-text-light mb-1">Delivery Address:</p>
+              <p id="delivery-address" class="font-medium">-</p>
+            </div>
+          </div>
+        </div>
+        
+        <p class="mb-6">
+          You will receive a confirmation message shortly. If you have any questions, please contact us.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="/" class="btn btn-primary">Back to Home</a>
+          <a href="/order-history" class="btn btn-secondary">View Order History</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Get order details from localStorage
+    const orderDetails = JSON.parse(localStorage.getItem('lastOrder') || '{}');
+    
+    if (Object.keys(orderDetails).length === 0) {
+      // No order details, probably accessed this page directly
+      // Could redirect to home, but we'll just leave minimal info
+    } else {
+      // Display order details
+      document.getElementById('order-number').textContent = orderDetails.orderNumber || 'OKV' + Math.floor(Math.random() * 10000);
+      document.getElementById('order-date').textContent = orderDetails.date || new Date().toLocaleDateString();
+      document.getElementById('order-total').textContent = orderDetails.total || `K${localStorage.getItem('orderTotal') || '0.00'}`;
+      document.getElementById('delivery-address').textContent = orderDetails.address || 'Not specified';
+      
+      // Clear cart since order is completed
+      localStorage.removeItem('cart');
+    }
+  });
+</script>

@@ -1,0 +1,112 @@
+---
+// Flutterwave integration for payment
+---
+
+<div>
+  <!-- Payment options -->
+  <div class="mb-4">
+    <div class="flex items-center mb-2">
+      <input type="radio" id="payment-mobile-money" name="payment-method" value="mobile-money" checked class="mr-2">
+      <label for="payment-mobile-money" class="flex items-center">
+        <span>Mobile Money</span>
+        <div class="flex ml-4 space-x-2">
+          <span class="w-10 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">MTN</span>
+          <span class="w-10 h-6 bg-green-600 rounded flex items-center justify-center text-white text-xs font-bold">Airtel</span>
+        </div>
+      </label>
+    </div>
+    
+    <div class="flex items-center">
+      <input type="radio" id="payment-cash" name="payment-method" value="cash" class="mr-2">
+      <label for="payment-cash">Cash on Delivery</label>
+    </div>
+  </div>
+  
+  <button id="complete-order-btn" class="btn btn-primary w-full">
+    Complete Order
+  </button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const completeOrderBtn = document.getElementById('complete-order-btn');
+    const paymentMobileMoneyRadio = document.getElementById('payment-mobile-money');
+    const paymentCashRadio = document.getElementById('payment-cash');
+    const deliveryForm = document.getElementById('delivery-form');
+    
+    completeOrderBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      
+      // Validate form
+      if (!deliveryForm.checkValidity()) {
+        deliveryForm.reportValidity();
+        return;
+      }
+      
+      // Get delivery info
+      const nameInput = document.getElementById('name');
+      const phoneInput = document.getElementById('phone');
+      const addressInput = document.getElementById('address');
+      const notesInput = document.getElementById('notes');
+      
+      const deliveryInfo = {
+        name: nameInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        address: addressInput.value.trim(),
+        notes: notesInput.value.trim()
+      };
+      
+      // Get selected payment method
+      const paymentMethod = paymentMobileMoneyRadio.checked ? 'mobile-money' : 'cash';
+      
+      // Get cart items and total
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const total = localStorage.getItem('orderTotal') || '0.00';
+      
+      // Create order object
+      const order = {
+        customer: deliveryInfo,
+        items: cart,
+        total: `K${total}`,
+        paymentMethod: paymentMethod,
+        orderNumber: 'OKV' + Math.floor(Math.random() * 10000),
+        date: new Date().toLocaleDateString(),
+        status: 'pending'
+      };
+      
+      // Store order in localStorage (in a real app, this would be sent to a server)
+      localStorage.setItem('lastOrder', JSON.stringify({
+        ...order,
+        items: undefined // Don't duplicate the items in storage
+      }));
+      localStorage.setItem('lastOrderItems', JSON.stringify(cart));
+      
+      // If cash on delivery, redirect to success page
+      if (paymentMethod === 'cash') {
+        window.location.href = '/success';
+        return;
+      }
+      
+      // For mobile money, we would integrate with Flutterwave here
+      // For demo purposes, we'll just simulate a payment
+      showProcessingPayment();
+    });
+    
+    function showProcessingPayment() {
+      // Show processing state
+      completeOrderBtn.disabled = true;
+      completeOrderBtn.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Processing Payment...
+      `;
+      
+      // Simulate payment processing
+      setTimeout(() => {
+        window.location.href = '/success';
+      }, 2000);
+    }
+  });
+</script>

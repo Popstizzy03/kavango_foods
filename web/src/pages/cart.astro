@@ -1,0 +1,162 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CartItem from '../components/CartItem.astro';
+import EmptyCart from '../components/EmptyCart.astro';
+import "../styles/global.css";
+---
+
+<Layout title="Your Cart - Okavango Foods">
+  <section class="py-16 bg-gradient-to-r from-orange-50 to-green-50">
+    <div class="container mx-auto px-4">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 text-center">Your <span class="text-primary">Cart</span></h1>
+      <p class="text-center text-text-light max-w-2xl mx-auto mb-12">
+        Review your items before checkout
+      </p>
+      
+      <div id="cart-container" class="max-w-4xl mx-auto">
+        <!-- Cart items will be rendered here dynamically -->
+        <div id="empty-cart-container" class="hidden">
+          <EmptyCart />
+        </div>
+        
+        <div id="cart-items-container" class="bg-white p-8 rounded-xl shadow-md mb-6">
+          <!-- Cart items will be inserted here -->
+        </div>
+        
+        <div id="cart-summary" class="bg-white p-8 rounded-xl shadow-md mb-6 hidden">
+          <div class="flex justify-between border-b pb-4 mb-4">
+            <span class="font-semibold">Subtotal:</span>
+            <span id="subtotal" class="font-semibold">K0.00</span>
+          </div>
+          <div class="flex justify-between border-b pb-4 mb-4">
+            <span class="font-semibold">Delivery Fee:</span>
+            <span id="delivery-fee" class="font-semibold">K25.00</span>
+          </div>
+          <div class="flex justify-between text-lg">
+            <span class="font-bold">Total:</span>
+            <span id="total" class="font-bold text-primary">K0.00</span>
+          </div>
+        </div>
+        
+        <div class="flex justify-end">
+          <a id="proceed-to-checkout" href="/checkout" class="btn btn-primary hidden">
+            Proceed to Checkout
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  // Cart functionality
+  document.addEventListener('DOMContentLoaded', () => {
+    const cartItemsContainer = document.getElementById('cart-items-container');
+    const emptyCartContainer = document.getElementById('empty-cart-container');
+    const cartSummary = document.getElementById('cart-summary');
+    const subtotalElement = document.getElementById('subtotal');
+    const totalElement = document.getElementById('total');
+    const proceedToCheckoutBtn = document.getElementById('proceed-to-checkout');
+    
+    // Get cart from localStorage
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    
+    if (cart.length === 0) {
+      // Show empty cart message
+      emptyCartContainer.classList.remove('hidden');
+      cartItemsContainer.classList.add('hidden');
+      cartSummary.classList.add('hidden');
+    } else {
+      // Show cart items
+      emptyCartContainer.classList.add('hidden');
+      cartItemsContainer.classList.remove('hidden');
+      cartSummary.classList.remove('hidden');
+      proceedToCheckoutBtn.classList.remove('hidden');
+      
+      // Calculate totals
+      let subtotal = 0;
+      const deliveryFee = 25; // Fixed delivery fee in Kwacha
+      
+      // Render cart items
+      cartItemsContainer.innerHTML = `
+        <h2 class="text-2xl font-semibold mb-6">Your Items</h2>
+        <div class="space-y-4" id="cart-items-list"></div>
+      `;
+      
+      const cartItemsList = document.getElementById('cart-items-list');
+      
+      cart.forEach((item: { price: string; quantity: number; name: any; }, index: any) => {
+        const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
+        subtotal += itemTotal;
+        
+        cartItemsList.innerHTML += `
+          <div class="flex items-center justify-between border-b pb-4">
+            <div class="flex items-center">
+              <div class="ml-4">
+                <h3 class="font-semibold">${item.name}</h3>
+                <p class="text-text-light text-sm">Price: ${item.price}</p>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="flex items-center border rounded-md mr-4">
+                <button class="decrease-btn px-3 py-1" data-index="${index}">-</button>
+                <span class="px-3 quantity">${item.quantity}</span>
+                <button class="increase-btn px-3 py-1" data-index="${index}">+</button>
+              </div>
+              <span class="font-semibold mr-4">K${itemTotal.toFixed(2)}</span>
+              <button class="remove-btn text-red-500" data-index="${index}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      
+      // Update totals
+      const total = subtotal + deliveryFee;
+      subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
+      totalElement.textContent = `K${total.toFixed(2)}`;
+      
+      // Add event listeners to buttons
+      const decreaseBtns = document.querySelectorAll('.decrease-btn');
+      const increaseBtns = document.querySelectorAll('.increase-btn');
+      const removeBtns = document.querySelectorAll('.remove-btn');
+      
+      decreaseBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = parseInt(btn.dataset.index);
+          if (cart[index].quantity > 1) {
+            cart[index].quantity--;
+            updateCart(cart);
+            window.location.reload();
+          }
+        });
+      });
+      
+      increaseBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = parseInt(btn.dataset.index);
+          cart[index].quantity++;
+          updateCart(cart);
+          window.location.reload();
+        });
+      });
+      
+      removeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = parseInt(btn.dataset.index);
+          cart.splice(index, 1);
+          updateCart(cart);
+          window.location.reload();
+        });
+      });
+    }
+    
+    // Helper function to update cart in localStorage
+    function updateCart(cart: any) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+  });
+</script>

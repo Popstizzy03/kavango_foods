@@ -1,0 +1,8 @@
+---
+// Toast notification component
+const { id, class: className } = Astro.props;
+---
+
+<div id={id} class={className}>
+  <slot>Notification message</slot>
+</div>

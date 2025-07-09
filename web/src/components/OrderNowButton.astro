@@ -1,15 +1,43 @@
 ---
-import "../styles/global.css";
+// Floating order button that sticks to the bottom of the screen
+import "../styles/global.css"
 ---
 
-<div id="order" class="fixed bottom-6 right-6 z-50">
-  <a 
-    href="tel:0977600808" 
-    class="flex items-center gap-2 bg-orange-800 text-white py-3 px-5 rounded-full shadow-lg hover:bg-orange-500 transition-colors"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+<div id="order" class="fixed bottom-6 right-6 z-40">
+  <a href="/cart" class="btn btn-primary rounded-full shadow-lg flex items-center gap-2 px-6">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
     </svg>
-    <span class="font-bold">Order Now</span>
+    <span id="cart-count" class="inline-flex items-center justify-center w-5 h-5 ml-1 text-xs font-bold text-white bg-red-500 rounded-full">0</span>
+    Order Now
   </a>
 </div>
+
+<script>
+  // Update cart count badge
+  function updateCartCount() {
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const count = cart.reduce((sum: any, item: { quantity: any; }) => sum + item.quantity, 0);
+      cartCountElement.textContent = count.toString();
+      
+      // Hide count if cart is empty
+      if (count === 0) {
+        cartCountElement.classList.add('hidden');
+      } else {
+        cartCountElement.classList.remove('hidden');
+      }
+    }
+  }
+  
+  // Update count on page load
+  document.addEventListener('DOMContentLoaded', updateCartCount);
+  
+  // Update count when storage changes (if another tab updates the cart)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'cart') {
+      updateCartCount();
+    }
+  });
+</script>

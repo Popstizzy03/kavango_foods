@@ -1,9 +1,116 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import OrderNowButton from '../components/OrderNowButton.astro';
+import Toast from '../components/Toast.astro';
 import "../styles/global.css";
 
-// This is a placeholder for the menu page. You would expand this with actual menu categories and items.
+// Actual menu data
+const menuCategories = [
+  {
+    id: 'sausages',
+    name: 'Sausage Goodness',
+    description: 'Premium quality sausages grilled to perfection',
+    items: [
+      {
+        id: 'classic-beef',
+        name: 'Classic Beef Sausage',
+        description: 'Premium beef sausage with our signature spice blend',
+        price: 'K15.00',
+        popular: true
+      },
+      {
+        id: 'spicy-beef',
+        name: 'Spicy Beef Sausage',
+        description: 'Our classic beef sausage with an extra kick of spice',
+        price: 'K15.00'
+      },
+      {
+        id: 'chicken-sausage',
+        name: 'Chicken Sausage',
+        description: 'Lean chicken sausage with herbs and light seasoning',
+        price: 'K15.00'
+      }
+    ]
+  },
+  {
+    id: 'wraps',
+    name: 'Tasty Wraps',
+    description: 'Flavorful fillings wrapped in soft tortillas',
+    items: [
+      {
+        id: 'new-flava',
+        name: 'New Flava Wrap',
+        description: 'Our newest wrap with chicken, veggies and special sauce',
+        price: 'K35.00',
+        popular: true
+      },
+      {
+        id: 'beef-wrap',
+        name: 'Beef Wrap',
+        description: 'Tender beef strips with fresh vegetables and our signature sauce',
+        price: 'K40.00'
+      },
+      {
+        id: 'veggie-wrap',
+        name: 'Veggie Wrap',
+        description: 'A delicious mix of grilled vegetables with our homemade dressing',
+        price: 'K30.00'
+      }
+    ]
+  },
+  {
+    id: 'samosas',
+    name: 'Beef Samosas',
+    description: 'Crispy pastry filled with spiced beef',
+    items: [
+      {
+        id: 'beef-samosa',
+        name: 'Beef Samosa (3 pcs)',
+        description: 'Crispy triangular pastry filled with spiced minced beef',
+        price: 'K25.00',
+        popular: true
+      },
+      {
+        id: 'beef-samosa-5',
+        name: 'Beef Samosa (5 pcs)',
+        description: 'Crispy triangular pastry filled with spiced minced beef',
+        price: 'K40.00'
+      },
+      {
+        id: 'beef-samosa-10',
+        name: 'Beef Samosa (10 pcs)',
+        description: 'Crispy triangular pastry filled with spiced minced beef',
+        price: 'K75.00'
+      }
+    ]
+  },
+  {
+    id: 'combos',
+    name: 'Combo Meals',
+    description: 'Perfect combinations for any appetite',
+    items: [
+      {
+        id: '4d-savage',
+        name: '4D Savage Combo',
+        description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves',
+        price: 'K120.00',
+        popular: true
+      },
+      {
+        id: 'family-feast',
+        name: 'Family Feast',
+        description: 'A selection of our most popular items perfect for sharing with 4-6 people',
+        price: 'K200.00'
+      },
+      {
+        id: 'duo-delight',
+        name: 'Duo Delight',
+        description: 'Perfect meal for two: 2 wraps, 4 sausages, and 2 drinks',
+        price: 'K90.00'
+      }
+    ]
+  }
+];
 ---
 
 <Layout title="Menu - Explore Our Delicious Options">
@@ -14,9 +121,46 @@ import "../styles/global.css";
         Explore our range of delicious African-inspired dishes made with fresh, quality ingredients.
       </p>
       
-      <!-- Menu content would go here -->
-      <div class="text-center py-12">
-        <p class="text-lg mb-8">We're currently updating our online menu. Please call us to learn about our latest offerings!</p>
+      <!-- Menu navigation -->
+      <div class="flex flex-wrap justify-center gap-4 mb-12">
+        {menuCategories.map(category => (
+          <a href={`#${category.id}`} class="px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow duration-300">
+            {category.name}
+          </a>
+        ))}
+      </div>
+      
+      <!-- Menu content -->
+      <div class="space-y-16">
+        {menuCategories.map(category => (
+          <div id={category.id} class="scroll-mt-24">
+            <div class="text-center mb-8">
+              <h2 class="text-3xl font-bold mb-2">{category.name}</h2>
+              <p class="text-text-light">{category.description}</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {category.items.map(item => (
+                <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                  <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                      <h3 class="font-semibold">{item.name}</h3>
+                      <span class="text-primary font-bold">{item.price}</span>
+                    </div>
+                    <p class="text-text-light text-sm mb-4">{item.description}</p>
+                    <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>
+                      Add to Order
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div class="text-center mt-16">
+        <p class="text-lg mb-4">Not finding what you're looking for?</p>
         <a href="tel:0977600808" class="btn btn-primary">
           <span class="flex items-center gap-2 justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -30,4 +174,84 @@ import "../styles/global.css";
   </section>
   
   <OrderNowButton />
+  <Toast id="toast" class="hidden fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50" />
 </Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    
+    addToCartButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const price = button.getAttribute('data-price');
+        
+        if (id && name && price) {
+          addToCart(id, name, price);
+          showToast(`${name} added to cart!`);
+          updateCartCount();
+        }
+      });
+    });
+    
+    function addToCart(id, name, price) {
+      // Get current cart from localStorage
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      
+      // Check if item already exists in cart
+      const existingItem = cart.find(item => item.id === id);
+      
+      if (existingItem) {
+        // Increase quantity if item already exists
+        existingItem.quantity += 1;
+      } else {
+        // Add new item to cart
+        cart.push({
+          id,
+          name,
+          price,
+          quantity: 1
+        });
+      }
+      
+      // Save updated cart to localStorage
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      
+      // Set toast content and style
+      toast.textContent = message;
+      toast.className = 'fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 bg-green-500 text-white';
+      
+      // Show toast
+      toast.classList.remove('hidden');
+      
+      // Hide toast after 3 seconds
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+    
+    function updateCartCount() {
+      const cartCountElement = document.getElementById('cart-count');
+      if (cartCountElement) {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCountElement.textContent = count.toString();
+        
+        // Hide count if cart is empty
+        if (count === 0) {
+          cartCountElement.classList.add('hidden');
+        } else {
+          cartCountElement.classList.remove('hidden');
+        }
+      }
+    }
+    
+    // Initialize cart count on page load
+    updateCartCount();
+  });
+</script>

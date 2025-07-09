@@ -1,0 +1,27 @@
+---
+// Props for the CartItem component
+const { name, price, quantity, index, image } = Astro.props;
+const itemTotal = parseFloat(price.replace('K', '')) * quantity;
+---
+
+<div class="flex items-center justify-between border-b pb-4">
+  <div class="flex items-center">
+    <div class="ml-4">
+      <h3 class="font-semibold">{name}</h3>
+      <p class="text-text-light text-sm">Price: {price}</p>
+    </div>
+  </div>
+  <div class="flex items-center">
+    <div class="flex items-center border rounded-md mr-4">
+      <button class="decrease-btn px-3 py-1" data-index={index}>-</button>
+      <span class="px-3 quantity">{quantity}</span>
+      <button class="increase-btn px-3 py-1" data-index={index}>+</button>
+    </div>
+    <span class="font-semibold mr-4">K{itemTotal.toFixed(2)}</span>
+    <button class="remove-btn text-red-500" data-index={index}>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  </div>
+</div>

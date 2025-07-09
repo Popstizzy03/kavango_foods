@@ -1,0 +1,149 @@
+---
+import Layout from '../layouts/Layout.astro';
+import "../styles/global.css";
+---
+
+<Layout title="Order History - Okavango Foods">
+  <section class="py-16 bg-gradient-to-r from-orange-50 to-green-50">
+    <div class="container mx-auto px-4">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 text-center">Your <span class="text-primary">Order</span> History</h1>
+      <p class="text-center text-text-light max-w-2xl mx-auto mb-12">
+        View all your previous orders and their status
+      </p>
+      
+      <div class="max-w-4xl mx-auto">
+        <!-- If user is not logged in -->
+        <div id="not-logged-in" class="bg-white p-8 rounded-xl shadow-md text-center">
+          <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          
+          <h2 class="text-2xl font-semibold mb-4">Track with Your Phone Number</h2>
+          <p class="text-text-light mb-6">
+            Enter the phone number you used for your order to view your order history.
+          </p>
+          
+          <div class="max-w-md mx-auto">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <input 
+                type="tel" 
+                id="phone-input" 
+                placeholder="Enter your phone number" 
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+              <button id="track-btn" class="btn btn-primary whitespace-nowrap">Track Orders</button>
+            </div>
+            <p id="phone-error" class="text-red-500 text-sm mt-2 hidden">Please enter a valid phone number</p>
+          </div>
+        </div>
+        
+        <!-- Order history will be shown here -->
+        <div id="order-history-container" class="hidden">
+          <div class="bg-white p-8 rounded-xl shadow-md mb-6">
+            <h2 class="text-2xl font-semibold mb-6">Your Orders</h2>
+            <div id="orders-list" class="space-y-6">
+              <!-- Orders will be listed here -->
+              <div class="text-center text-text-light py-8">
+                No orders found for this phone number.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const phoneInput = document.getElementById('phone-input');
+    const trackBtn = document.getElementById('track-btn');
+    const phoneError = document.getElementById('phone-error');
+    const notLoggedIn = document.getElementById('not-logged-in');
+    const orderHistoryContainer = document.getElementById('order-history-container');
+    
+    // For demo purposes, show an order if the last order exists
+    if (localStorage.getItem('lastOrder')) {
+      const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
+      
+      // Pre-fill the phone if available
+      if (lastOrder.phone) {
+        phoneInput.value = lastOrder.phone;
+      }
+    }
+    
+    trackBtn.addEventListener('click', () => {
+      const phoneNumber = phoneInput.value.trim();
+      
+      if (!phoneNumber) {
+        phoneError.textContent = 'Please enter your phone number';
+        phoneError.classList.remove('hidden');
+        return;
+      }
+      
+      // Basic validation - can enhance as needed
+      if (!/^\d{10}$/.test(phoneNumber.replace(/\D/g, ''))) {
+        phoneError.textContent = 'Please enter a valid 10-digit phone number';
+        phoneError.classList.remove('hidden');
+        return;
+      }
+      
+      phoneError.classList.add('hidden');
+      
+      // In a real app, you would fetch orders from an API
+      // For demo purposes, we'll show the last order if available
+      if (localStorage.getItem('lastOrder')) {
+        notLoggedIn.classList.add('hidden');
+        orderHistoryContainer.classList.remove('hidden');
+        
+        const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
+        const ordersList = document.getElementById('orders-list');
+        
+        // Create a demo order entry
+        const orderDate = lastOrder.date || new Date().toLocaleDateString();
+        const orderNumber = lastOrder.orderNumber || 'OKV' + Math.floor(Math.random() * 10000);
+        const orderTotal = lastOrder.total || `K${localStorage.getItem('orderTotal') || '0.00'}`;
+        
+        ordersList.innerHTML = `
+          <div class="border rounded-lg p-6">
+            <div class="flex flex-col md:flex-row justify-between mb-4">
+              <div>
+                <h3 class="font-semibold">Order #${orderNumber}</h3>
+                <p class="text-text-light text-sm">${orderDate}</p>
+              </div>
+              <div class="mt-2 md:mt-0">
+                <span class="inline-block px-3 py-1 text-sm font-semibold text-green-800 bg-green-100 rounded-full">
+                  Delivered
+                </span>
+              </div>
+            </div>
+            <div class="border-t pt-4">
+              <div class="flex justify-between mb-2">
+                <span>Total:</span>
+                <span class="font-semibold">${orderTotal}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Items:</span>
+                <span>${JSON.parse(localStorage.getItem('lastOrderItems') || '[]').length} items</span>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button class="text-primary font-medium flex items-center">
+                <span>View Details</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        // Show empty state
+        notLoggedIn.classList.add('hidden');
+        orderHistoryContainer.classList.remove('hidden');
+      }
+    });
+  });
+</script>
