@@ -29,39 +29,56 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const completeOrderBtn = document.getElementById('complete-order-btn');
-    const paymentMobileMoneyRadio = document.getElementById('payment-mobile-money');
-    const paymentCashRadio = document.getElementById('payment-cash');
-    const deliveryForm = document.getElementById('delivery-form');
+    // Type-safe DOM element queries with proper typing
+    const completeOrderBtn = document.getElementById('complete-order-btn') as HTMLButtonElement | null;
+    const paymentMobileMoneyRadio = document.getElementById('payment-mobile-money') as HTMLInputElement | null;
+    const paymentCashRadio = document.getElementById('payment-cash') as HTMLInputElement | null;
+    const deliveryForm = document.getElementById('delivery-form') as HTMLFormElement | null;
+    
+    // Early return if critical elements are missing
+    if (!completeOrderBtn || !paymentMobileMoneyRadio || !paymentCashRadio) {
+      console.error('Required DOM elements not found');
+      return;
+    }
     
     completeOrderBtn.addEventListener('click', (e) => {
       e.preventDefault();
       
-      // Validate form
-      if (!deliveryForm.checkValidity()) {
-        deliveryForm.reportValidity();
-        return;
+      // Validate form if it exists
+      if (deliveryForm) {
+        if (!deliveryForm.checkValidity()) {
+          deliveryForm.reportValidity();
+          return;
+        }
       }
       
-      // Get delivery info
-      const nameInput = document.getElementById('name');
-      const phoneInput = document.getElementById('phone');
-      const addressInput = document.getElementById('address');
-      const notesInput = document.getElementById('notes');
+      // Get delivery info elements with proper typing
+      const nameInput = document.getElementById('name') as HTMLInputElement | null;
+      const phoneInput = document.getElementById('phone') as HTMLInputElement | null;
+      const addressInput = document.getElementById('address') as HTMLInputElement | null;
+      const notesInput = document.getElementById('notes') as HTMLTextAreaElement | null;
+      
+      // Check if required elements exist
+      if (!nameInput || !phoneInput || !addressInput) {
+        console.error('Required form elements not found');
+        return;
+      }
       
       const deliveryInfo = {
         name: nameInput.value.trim(),
         phone: phoneInput.value.trim(),
         address: addressInput.value.trim(),
-        notes: notesInput.value.trim()
+        notes: notesInput?.value.trim() || '' // Handle optional notes
       };
       
       // Get selected payment method
       const paymentMethod = paymentMobileMoneyRadio.checked ? 'mobile-money' : 'cash';
       
-      // Get cart items and total
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const total = localStorage.getItem('orderTotal') || '0.00';
+      // Get cart items and total with null safety
+      const cartData = localStorage.getItem('cart');
+      const cart = cartData ? JSON.parse(cartData) : [];
+      const orderTotalData = localStorage.getItem('orderTotal');
+      const total = orderTotalData || '0.00';
       
       // Create order object
       const order = {
@@ -93,6 +110,14 @@
     });
     
     function showProcessingPayment() {
+      // Get the complete order button again to ensure it exists
+      const completeOrderBtn = document.getElementById('complete-order-btn') as HTMLButtonElement | null;
+      
+      if (!completeOrderBtn) {
+        console.error('Complete order button not found');
+        return;
+      }
+      
       // Show processing state
       completeOrderBtn.disabled = true;
       completeOrderBtn.innerHTML = `

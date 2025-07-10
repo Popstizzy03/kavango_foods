@@ -49,17 +49,31 @@ import "../styles/global.css";
 </Layout>
 
 <script>
+  // Define interfaces for better type safety
+  interface CartItem {
+    name: string;
+    price: string;
+    quantity: number;
+  }
+
   // Cart functionality
   document.addEventListener('DOMContentLoaded', () => {
-    const cartItemsContainer = document.getElementById('cart-items-container');
-    const emptyCartContainer = document.getElementById('empty-cart-container');
-    const cartSummary = document.getElementById('cart-summary');
-    const subtotalElement = document.getElementById('subtotal');
-    const totalElement = document.getElementById('total');
-    const proceedToCheckoutBtn = document.getElementById('proceed-to-checkout');
+    // Type-safe DOM element selection with proper null checks
+    const cartItemsContainer = document.getElementById('cart-items-container') as HTMLElement | null;
+    const emptyCartContainer = document.getElementById('empty-cart-container') as HTMLElement | null;
+    const cartSummary = document.getElementById('cart-summary') as HTMLElement | null;
+    const subtotalElement = document.getElementById('subtotal') as HTMLElement | null;
+    const totalElement = document.getElementById('total') as HTMLElement | null;
+    const proceedToCheckoutBtn = document.getElementById('proceed-to-checkout') as HTMLAnchorElement | null;
     
-    // Get cart from localStorage
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    // Validate all required elements exist
+    if (!cartItemsContainer || !emptyCartContainer || !cartSummary || !subtotalElement || !totalElement || !proceedToCheckoutBtn) {
+      console.error('Required cart elements not found');
+      return;
+    }
+    
+    // Get cart from localStorage with proper typing
+    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
     
     if (cart.length === 0) {
       // Show empty cart message
@@ -83,9 +97,14 @@ import "../styles/global.css";
         <div class="space-y-4" id="cart-items-list"></div>
       `;
       
-      const cartItemsList = document.getElementById('cart-items-list');
+      const cartItemsList = document.getElementById('cart-items-list') as HTMLElement | null;
       
-      cart.forEach((item: { price: string; quantity: number; name: any; }, index: any) => {
+      if (!cartItemsList) {
+        console.error('Cart items list element not found');
+        return;
+      }
+      
+      cart.forEach((item: CartItem, index: number) => {
         const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
         subtotal += itemTotal;
         
@@ -119,15 +138,18 @@ import "../styles/global.css";
       subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
       totalElement.textContent = `K${total.toFixed(2)}`;
       
-      // Add event listeners to buttons
-      const decreaseBtns = document.querySelectorAll('.decrease-btn');
-      const increaseBtns = document.querySelectorAll('.increase-btn');
-      const removeBtns = document.querySelectorAll('.remove-btn');
+      // Add event listeners to buttons with proper type assertions
+      const decreaseBtns = document.querySelectorAll('.decrease-btn') as NodeListOf<HTMLButtonElement>;
+      const increaseBtns = document.querySelectorAll('.increase-btn') as NodeListOf<HTMLButtonElement>;
+      const removeBtns = document.querySelectorAll('.remove-btn') as NodeListOf<HTMLButtonElement>;
       
       decreaseBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          const index = parseInt(btn.dataset.index);
-          if (cart[index].quantity > 1) {
+          const indexStr = btn.dataset.index;
+          if (!indexStr) return;
+          
+          const index = parseInt(indexStr);
+          if (cart[index] && cart[index].quantity > 1) {
             cart[index].quantity--;
             updateCart(cart);
             window.location.reload();
@@ -137,16 +159,24 @@ import "../styles/global.css";
       
       increaseBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          const index = parseInt(btn.dataset.index);
-          cart[index].quantity++;
-          updateCart(cart);
-          window.location.reload();
+          const indexStr = btn.dataset.index;
+          if (!indexStr) return;
+          
+          const index = parseInt(indexStr);
+          if (cart[index]) {
+            cart[index].quantity++;
+            updateCart(cart);
+            window.location.reload();
+          }
         });
       });
       
       removeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-          const index = parseInt(btn.dataset.index);
+          const indexStr = btn.dataset.index;
+          if (!indexStr) return;
+          
+          const index = parseInt(indexStr);
           cart.splice(index, 1);
           updateCart(cart);
           window.location.reload();
@@ -154,8 +184,8 @@ import "../styles/global.css";
       });
     }
     
-    // Helper function to update cart in localStorage
-    function updateCart(cart: any) {
+    // Helper function to update cart in localStorage with proper typing
+    function updateCart(cart: CartItem[]): void {
       localStorage.setItem('cart', JSON.stringify(cart));
     }
   });

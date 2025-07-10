@@ -163,18 +163,29 @@ import "../styles/global.css";
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const contactForm = document.getElementById('contact-form');
+    // Type-safe DOM element selection with proper null checks
+    const contactForm = document.getElementById('contact-form') as HTMLFormElement | null;
+    
+    if (!contactForm) {
+      console.error('Contact form not found');
+      return;
+    }
     
     contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
       
-      // In a real app, you would submit the form data to a server
-      // For demo purposes, we'll just show a success message
+      // Get form elements with proper type assertions and null checks
+      const nameInput = document.getElementById('name') as HTMLInputElement | null;
+      const emailInput = document.getElementById('email') as HTMLInputElement | null;
+      const messageInput = document.getElementById('message') as HTMLTextAreaElement | null;
       
-      const nameInput = document.getElementById('name');
-      const emailInput = document.getElementById('email');
-      const messageInput = document.getElementById('message');
+      // Validate all elements exist
+      if (!nameInput || !emailInput || !messageInput) {
+        console.error('Form elements not found');
+        return;
+      }
       
+      // Validate form data
       if (!nameInput.value.trim() || !emailInput.value.trim() || !messageInput.value.trim()) {
         showToast('Please fill out all required fields', 'error');
         return;
@@ -183,12 +194,18 @@ import "../styles/global.css";
       // Show success message
       showToast('Your message has been sent! We will get back to you soon.', 'success');
       
-      // Reset form
+      // Reset form using proper method
       contactForm.reset();
     });
     
-    function showToast(message, type = 'success') {
-      const toast = document.getElementById('toast');
+    // Type-safe toast function with proper parameter typing
+    function showToast(message: string, type: 'success' | 'error' = 'success'): void {
+      const toast = document.getElementById('toast') as HTMLElement | null;
+      
+      if (!toast) {
+        console.error('Toast element not found');
+        return;
+      }
       
       // Set toast content and style based on type
       toast.textContent = message;

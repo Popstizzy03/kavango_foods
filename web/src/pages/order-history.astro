@@ -58,15 +58,23 @@ import "../styles/global.css";
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const phoneInput = document.getElementById('phone-input');
-    const trackBtn = document.getElementById('track-btn');
-    const phoneError = document.getElementById('phone-error');
-    const notLoggedIn = document.getElementById('not-logged-in');
-    const orderHistoryContainer = document.getElementById('order-history-container');
+    // Type-safe DOM element queries with proper typing
+    const phoneInput = document.getElementById('phone-input') as HTMLInputElement | null;
+    const trackBtn = document.getElementById('track-btn') as HTMLButtonElement | null;
+    const phoneError = document.getElementById('phone-error') as HTMLElement | null;
+    const notLoggedIn = document.getElementById('not-logged-in') as HTMLElement | null;
+    const orderHistoryContainer = document.getElementById('order-history-container') as HTMLElement | null;
+    
+    // Early return if critical elements are missing
+    if (!phoneInput || !trackBtn || !phoneError || !notLoggedIn || !orderHistoryContainer) {
+      console.error('Required DOM elements not found');
+      return;
+    }
     
     // For demo purposes, show an order if the last order exists
-    if (localStorage.getItem('lastOrder')) {
-      const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
+    const lastOrderData = localStorage.getItem('lastOrder');
+    if (lastOrderData) {
+      const lastOrder = JSON.parse(lastOrderData);
       
       // Pre-fill the phone if available
       if (lastOrder.phone) {
@@ -94,17 +102,27 @@ import "../styles/global.css";
       
       // In a real app, you would fetch orders from an API
       // For demo purposes, we'll show the last order if available
-      if (localStorage.getItem('lastOrder')) {
+      const lastOrderData = localStorage.getItem('lastOrder');
+      if (lastOrderData) {
         notLoggedIn.classList.add('hidden');
         orderHistoryContainer.classList.remove('hidden');
         
-        const lastOrder = JSON.parse(localStorage.getItem('lastOrder'));
-        const ordersList = document.getElementById('orders-list');
+        const lastOrder = JSON.parse(lastOrderData);
+        const ordersList = document.getElementById('orders-list') as HTMLElement | null;
+        
+        if (!ordersList) {
+          console.error('Orders list element not found');
+          return;
+        }
         
         // Create a demo order entry
         const orderDate = lastOrder.date || new Date().toLocaleDateString();
         const orderNumber = lastOrder.orderNumber || 'OKV' + Math.floor(Math.random() * 10000);
-        const orderTotal = lastOrder.total || `K${localStorage.getItem('orderTotal') || '0.00'}`;
+        const orderTotalData = localStorage.getItem('orderTotal');
+        const orderTotal = lastOrder.total || `K${orderTotalData || '0.00'}`;
+        
+        const lastOrderItemsData = localStorage.getItem('lastOrderItems');
+        const itemCount = lastOrderItemsData ? JSON.parse(lastOrderItemsData).length : 0;
         
         ordersList.innerHTML = `
           <div class="border rounded-lg p-6">
@@ -126,7 +144,7 @@ import "../styles/global.css";
               </div>
               <div class="flex justify-between">
                 <span>Items:</span>
-                <span>${JSON.parse(localStorage.getItem('lastOrderItems') || '[]').length} items</span>
+                <span>${itemCount} items</span>
               </div>
             </div>
             <div class="mt-4">
