@@ -54,19 +54,44 @@ import "../styles/global.css";
 </Layout>
 
 <script>
+  // Define types
+  interface OrderDetails {
+    orderNumber?: string;
+    date?: string;
+    total?: string;
+    address?: string;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     // Get order details from localStorage
-    const orderDetails = JSON.parse(localStorage.getItem('lastOrder') || '{}');
+    const orderDetails: OrderDetails = JSON.parse(localStorage.getItem('lastOrder') || '{}');
     
     if (Object.keys(orderDetails).length === 0) {
       // No order details, probably accessed this page directly
       // Could redirect to home, but we'll just leave minimal info
     } else {
-      // Display order details
-      document.getElementById('order-number').textContent = orderDetails.orderNumber || 'OKV' + Math.floor(Math.random() * 10000);
-      document.getElementById('order-date').textContent = orderDetails.date || new Date().toLocaleDateString();
-      document.getElementById('order-total').textContent = orderDetails.total || `K${localStorage.getItem('orderTotal') || '0.00'}`;
-      document.getElementById('delivery-address').textContent = orderDetails.address || 'Not specified';
+      // Display order details with null safety
+      const orderNumberElement = document.getElementById('order-number');
+      const orderDateElement = document.getElementById('order-date');
+      const orderTotalElement = document.getElementById('order-total');
+      const deliveryAddressElement = document.getElementById('delivery-address');
+      
+      // FIX: Null safety checks for all elements
+      if (orderNumberElement) {
+        orderNumberElement.textContent = orderDetails.orderNumber || 'OKV' + Math.floor(Math.random() * 10000);
+      }
+      
+      if (orderDateElement) {
+        orderDateElement.textContent = orderDetails.date || new Date().toLocaleDateString();
+      }
+      
+      if (orderTotalElement) {
+        orderTotalElement.textContent = orderDetails.total || `K${localStorage.getItem('orderTotal') || '0.00'}`;
+      }
+      
+      if (deliveryAddressElement) {
+        deliveryAddressElement.textContent = orderDetails.address || 'Not specified';
+      }
       
       // Clear cart since order is completed
       localStorage.removeItem('cart');

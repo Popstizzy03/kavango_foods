@@ -45,13 +45,21 @@ import "../styles/global.css";
 </Layout>
 
 <script>
+  // Define types for better type safety
+  interface CartItem {
+    id: string;
+    name: string;
+    price: string;
+    quantity: number;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const orderSummaryElement = document.getElementById('order-summary');
     const subtotalElement = document.getElementById('subtotal');
     const totalElement = document.getElementById('total');
     
     // Get cart from localStorage
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
     
     if (cart.length === 0) {
       // Redirect to cart if empty
@@ -64,7 +72,8 @@ import "../styles/global.css";
       // Create order summary HTML
       let orderSummaryHTML = '<div class="space-y-4">';
       
-      cart.forEach(item => {
+      // FIX: Explicitly type the parameter
+      cart.forEach((item: CartItem) => {
         const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
         subtotal += itemTotal;
         
@@ -80,12 +89,20 @@ import "../styles/global.css";
       });
       
       orderSummaryHTML += '</div>';
-      orderSummaryElement.innerHTML = orderSummaryHTML;
       
-      // Update totals
+      // FIX: Null safety checks
+      if (orderSummaryElement) {
+        orderSummaryElement.innerHTML = orderSummaryHTML;
+      }
+      
+      // Update totals with null safety
       const total = subtotal + deliveryFee;
-      subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
-      totalElement.textContent = `K${total.toFixed(2)}`;
+      if (subtotalElement) {
+        subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
+      }
+      if (totalElement) {
+        totalElement.textContent = `K${total.toFixed(2)}`;
+      }
       
       // Store order total in localStorage for use in payment
       localStorage.setItem('orderTotal', total.toFixed(2));

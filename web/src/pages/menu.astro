@@ -178,6 +178,14 @@ const menuCategories = [
 </Layout>
 
 <script>
+  // Define types
+  interface CartItem {
+    id: string;
+    name: string;
+    price: string;
+    quantity: number;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
     
@@ -195,12 +203,13 @@ const menuCategories = [
       });
     });
     
-    function addToCart(id, name, price) {
+    // FIX: Explicitly type all parameters
+    function addToCart(id: string, name: string, price: string): void {
       // Get current cart from localStorage
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
       
       // Check if item already exists in cart
-      const existingItem = cart.find(item => item.id === id);
+      const existingItem = cart.find((item: CartItem) => item.id === id);
       
       if (existingItem) {
         // Increase quantity if item already exists
@@ -219,27 +228,32 @@ const menuCategories = [
       localStorage.setItem('cart', JSON.stringify(cart));
     }
     
-    function showToast(message) {
+    // FIX: Type the message parameter
+    function showToast(message: string): void {
       const toast = document.getElementById('toast');
       
-      // Set toast content and style
-      toast.textContent = message;
-      toast.className = 'fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 bg-green-500 text-white';
-      
-      // Show toast
-      toast.classList.remove('hidden');
-      
-      // Hide toast after 3 seconds
-      setTimeout(() => {
-        toast.classList.add('hidden');
-      }, 3000);
+      // FIX: Null safety check
+      if (toast) {
+        // Set toast content and style
+        toast.textContent = message;
+        toast.className = 'fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 bg-green-500 text-white';
+        
+        // Show toast
+        toast.classList.remove('hidden');
+        
+        // Hide toast after 3 seconds
+        setTimeout(() => {
+          toast.classList.add('hidden');
+        }, 3000);
+      }
     }
     
-    function updateCartCount() {
+    function updateCartCount(): void {
       const cartCountElement = document.getElementById('cart-count');
       if (cartCountElement) {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+        // FIX: Type the reduce parameters explicitly
+        const count = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
         cartCountElement.textContent = count.toString();
         
         // Hide count if cart is empty
