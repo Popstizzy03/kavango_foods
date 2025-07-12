@@ -51,6 +51,7 @@ import "../styles/global.css";
 <script>
   // Define interfaces for better type safety
   interface CartItem {
+    id: string;
     name: string;
     price: string;
     quantity: number;
@@ -72,73 +73,82 @@ import "../styles/global.css";
       return;
     }
     
-    // Get cart from localStorage with proper typing
-    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-    
-    if (cart.length === 0) {
-      // Show empty cart message
-      emptyCartContainer.classList.remove('hidden');
-      cartItemsContainer.classList.add('hidden');
-      cartSummary.classList.add('hidden');
-    } else {
-      // Show cart items
-      emptyCartContainer.classList.add('hidden');
-      cartItemsContainer.classList.remove('hidden');
-      cartSummary.classList.remove('hidden');
-      proceedToCheckoutBtn.classList.remove('hidden');
+    // Function to render cart and attach event listeners
+    function renderCart() {
+      // Get cart from localStorage with proper typing
+      const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
       
-      // Calculate totals
-      let subtotal = 0;
-      const deliveryFee = 25; // Fixed delivery fee in Kwacha
-      
-      // Render cart items
-      cartItemsContainer.innerHTML = `
-        <h2 class="text-2xl font-semibold mb-6">Your Items</h2>
-        <div class="space-y-4" id="cart-items-list"></div>
-      `;
-      
-      const cartItemsList = document.getElementById('cart-items-list') as HTMLElement | null;
-      
-      if (!cartItemsList) {
-        console.error('Cart items list element not found');
-        return;
-      }
-      
-      cart.forEach((item: CartItem, index: number) => {
-        const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
-        subtotal += itemTotal;
+      if (cart.length === 0) {
+        // Show empty cart message
+        emptyCartContainer.classList.remove('hidden');
+        cartItemsContainer.classList.add('hidden');
+        cartSummary.classList.add('hidden');
+        proceedToCheckoutBtn.classList.add('hidden');
+      } else {
+        // Show cart items
+        emptyCartContainer.classList.add('hidden');
+        cartItemsContainer.classList.remove('hidden');
+        cartSummary.classList.remove('hidden');
+        proceedToCheckoutBtn.classList.remove('hidden');
         
-        cartItemsList.innerHTML += `
-          <div class="flex items-center justify-between border-b pb-4">
-            <div class="flex items-center">
-              <div class="ml-4">
-                <h3 class="font-semibold">${item.name}</h3>
-                <p class="text-text-light text-sm">Price: ${item.price}</p>
-              </div>
-            </div>
-            <div class="flex items-center">
-              <div class="flex items-center border rounded-md mr-4">
-                <button class="decrease-btn px-3 py-1" data-index="${index}">-</button>
-                <span class="px-3 quantity">${item.quantity}</span>
-                <button class="increase-btn px-3 py-1" data-index="${index}">+</button>
-              </div>
-              <span class="font-semibold mr-4">K${itemTotal.toFixed(2)}</span>
-              <button class="remove-btn text-red-500" data-index="${index}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          </div>
+        // Calculate totals
+        let subtotal = 0;
+        const deliveryFee = 25; // Fixed delivery fee in Kwacha
+        
+        // Render cart items
+        cartItemsContainer.innerHTML = `
+          <h2 class="text-2xl font-semibold mb-6">Your Items</h2>
+          <div class="space-y-4" id="cart-items-list"></div>
         `;
-      });
-      
-      // Update totals
-      const total = subtotal + deliveryFee;
-      subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
-      totalElement.textContent = `K${total.toFixed(2)}`;
-      
-      // Add event listeners to buttons with proper type assertions
+        
+        const cartItemsList = document.getElementById('cart-items-list') as HTMLElement | null;
+        
+        if (!cartItemsList) {
+          console.error('Cart items list element not found');
+          return;
+        }
+        
+        cart.forEach((item: CartItem, index: number) => {
+          const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
+          subtotal += itemTotal;
+          
+          cartItemsList.innerHTML += `
+            <div class="flex items-center justify-between border-b pb-4">
+              <div class="flex items-center">
+                <div class="ml-4">
+                  <h3 class="font-semibold">${item.name}</h3>
+                  <p class="text-text-light text-sm">Price: ${item.price}</p>
+                </div>
+              </div>
+              <div class="flex items-center">
+                <div class="flex items-center border rounded-md mr-4">
+                  <button class="decrease-btn px-3 py-1" data-index="${index}">-</button>
+                  <span class="px-3 quantity">${item.quantity}</span>
+                  <button class="increase-btn px-3 py-1" data-index="${index}">+</button>
+                </div>
+                <span class="font-semibold mr-4">K${itemTotal.toFixed(2)}</span>
+                <button class="remove-btn text-red-500" data-index="${index}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+        
+        // Update totals
+        const total = subtotal + deliveryFee;
+        subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
+        totalElement.textContent = `K${total.toFixed(2)}`;
+        
+        // Add event listeners
+        addCartEventListeners();
+      }
+    }
+    
+    // Function to add event listeners to cart buttons
+    function addCartEventListeners() {
       const decreaseBtns = document.querySelectorAll('.decrease-btn') as NodeListOf<HTMLButtonElement>;
       const increaseBtns = document.querySelectorAll('.increase-btn') as NodeListOf<HTMLButtonElement>;
       const removeBtns = document.querySelectorAll('.remove-btn') as NodeListOf<HTMLButtonElement>;
@@ -149,10 +159,15 @@ import "../styles/global.css";
           if (!indexStr) return;
           
           const index = parseInt(indexStr);
+          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+          
           if (cart[index] && cart[index].quantity > 1) {
             cart[index].quantity--;
             updateCart(cart);
-            window.location.reload();
+            renderCart(); // Re-render instead of page reload
+            
+            // Also add to order history
+            addToOrderHistory('decrease', cart[index]);
           }
         });
       });
@@ -163,10 +178,15 @@ import "../styles/global.css";
           if (!indexStr) return;
           
           const index = parseInt(indexStr);
+          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+          
           if (cart[index]) {
             cart[index].quantity++;
             updateCart(cart);
-            window.location.reload();
+            renderCart(); // Re-render instead of page reload
+            
+            // Also add to order history
+            addToOrderHistory('increase', cart[index]);
           }
         });
       });
@@ -177,16 +197,45 @@ import "../styles/global.css";
           if (!indexStr) return;
           
           const index = parseInt(indexStr);
+          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+          
+          // Add to order history before removing
+          addToOrderHistory('remove', cart[index]);
+          
           cart.splice(index, 1);
           updateCart(cart);
-          window.location.reload();
+          renderCart(); // Re-render instead of page reload
         });
       });
     }
     
-    // Helper function to update cart in localStorage with proper typing
+    // Helper function to update cart in localStorage
     function updateCart(cart: CartItem[]): void {
       localStorage.setItem('cart', JSON.stringify(cart));
+      
+      // Dispatch a custom event that other components can listen for
+      const event = new Event('cartUpdated');
+      document.dispatchEvent(event);
     }
+    
+    // Initial render
+    renderCart();
+    
+    // Listen for custom cartUpdated events
+    document.addEventListener('cartUpdated', () => {
+      // Update any cart-related UI elements that need to be synced
+      const cartCountElement = document.getElementById('cart-count');
+      if (cartCountElement) {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCountElement.textContent = count.toString();
+        
+        if (count === 0) {
+          cartCountElement.classList.add('hidden');
+        } else {
+          cartCountElement.classList.remove('hidden');
+        }
+      }
+    });
   });
 </script>

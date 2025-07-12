@@ -3,6 +3,19 @@ import Layout from '../layouts/Layout.astro';
 import OrderNowButton from '../components/OrderNowButton.astro';
 import Toast from '../components/Toast.astro';
 import "../styles/global.css";
+import { Image } from 'astro:assets'
+import sausage from '../assets/sausage-goodness.png'
+import wrap from '../assets/tasty-wraps.png'
+import samosa from '../assets/beef-samosas.png'
+import combo from '../assets/combo-meals.png'
+
+// Map category IDs to images
+const categoryImages = {
+  'sausages': sausage,
+  'wraps': wrap,
+  'samosas': samosa,
+  'combos': combo
+};
 
 // Actual menu data
 const menuCategories = [
@@ -139,22 +152,30 @@ const menuCategories = [
               <p class="text-text-light">{category.description}</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {category.items.map(item => (
-                <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
-                  <div class="p-6">
-                    <div class="flex justify-between items-start mb-2">
-                      <h3 class="font-semibold">{item.name}</h3>
-                      <span class="text-primary font-bold">{item.price}</span>
-                    </div>
-                    <p class="text-text-light text-sm mb-4">{item.description}</p>
-                    <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>
-                      Add to Order
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <!-- Then in the menu items loop, add images -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {category.items.map(item => (
+    <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
+      <div class="h-40 overflow-hidden">
+        <Image 
+          src={categoryImages[category.id]} 
+          alt={item.name}
+          class="w-full h-full object-cover"
+        />
+      </div>
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-2">
+          <h3 class="font-semibold">{item.name}</h3>
+          <span class="text-primary font-bold">{item.price}</span>
+        </div>
+        <p class="text-text-light text-sm mb-4">{item.description}</p>
+        <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>
+          Add to Order
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
           </div>
         ))}
       </div>
