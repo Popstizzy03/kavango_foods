@@ -55,7 +55,6 @@ const navItems = [
     </div>
   </div>
   
-  <!-- Mobile menu -->
   <div id="mobileMenu" class="hidden md:hidden">
     <div class="container mx-auto px-4 py-4 bg-white">
       <ul class="flex flex-col gap-4">
@@ -87,7 +86,6 @@ const navItems = [
     });
   }
 
-    // Update cart count in header
   function updateHeaderCartCount() {
     const cartCountElement = document.getElementById('header-cart-count');
     if (cartCountElement) {
@@ -95,7 +93,6 @@ const navItems = [
       const count = cart.reduce((sum: any, item: { quantity: any; }) => sum + item.quantity, 0);
       cartCountElement.textContent = count.toString();
       
-      // Hide count if cart is empty
       if (count === 0) {
         cartCountElement.classList.add('hidden');
       } else {
@@ -104,13 +101,13 @@ const navItems = [
     }
   }
   
-  // Update count on page load
   document.addEventListener('DOMContentLoaded', updateHeaderCartCount);
   
-  // Update count when storage changes
   window.addEventListener('storage', (e) => {
     if (e.key === 'cart') {
       updateHeaderCartCount();
     }
   });
+  
+  document.addEventListener('cartUpdated', updateHeaderCartCount);
 </script>

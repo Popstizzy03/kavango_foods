@@ -1,6 +1,5 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import OrderNowButton from '../components/OrderNowButton.astro';
 import Toast from '../components/Toast.astro';
 import "../styles/global.css";
 import { Image } from 'astro:assets'
@@ -9,7 +8,6 @@ import wrap from '../assets/tasty-wraps.png'
 import samosa from '../assets/beef-samosas.png'
 import combo from '../assets/combo-meals.png'
 
-// Map category IDs to images
 const categoryImages = {
   'sausages': sausage,
   'wraps': wrap,
@@ -17,32 +15,15 @@ const categoryImages = {
   'combos': combo
 };
 
-// Actual menu data
 const menuCategories = [
   {
     id: 'sausages',
     name: 'Sausage Goodness',
     description: 'Premium quality sausages grilled to perfection',
     items: [
-      {
-        id: 'classic-beef',
-        name: 'Classic Beef Sausage',
-        description: 'Premium beef sausage with our signature spice blend',
-        price: 'K15.00',
-        popular: true
-      },
-      {
-        id: 'spicy-beef',
-        name: 'Spicy Beef Sausage',
-        description: 'Our classic beef sausage with an extra kick of spice',
-        price: 'K15.00'
-      },
-      {
-        id: 'chicken-sausage',
-        name: 'Chicken Sausage',
-        description: 'Lean chicken sausage with herbs and light seasoning',
-        price: 'K15.00'
-      }
+      { id: 'classic-beef', name: 'Classic Beef Sausage', description: 'Premium beef sausage with our signature spice blend', price: 'K15.00', popular: true },
+      { id: 'spicy-beef', name: 'Spicy Beef Sausage', description: 'Our classic beef sausage with an extra kick of spice', price: 'K15.00' },
+      { id: 'chicken-sausage', name: 'Chicken Sausage', description: 'Lean chicken sausage with herbs and light seasoning', price: 'K15.00' }
     ]
   },
   {
@@ -50,25 +31,9 @@ const menuCategories = [
     name: 'Tasty Wraps',
     description: 'Flavorful fillings wrapped in soft tortillas',
     items: [
-      {
-        id: 'new-flava',
-        name: 'New Flava Wrap',
-        description: 'Our newest wrap with chicken, veggies and special sauce',
-        price: 'K35.00',
-        popular: true
-      },
-      {
-        id: 'beef-wrap',
-        name: 'Beef Wrap',
-        description: 'Tender beef strips with fresh vegetables and our signature sauce',
-        price: 'K40.00'
-      },
-      {
-        id: 'veggie-wrap',
-        name: 'Veggie Wrap',
-        description: 'A delicious mix of grilled vegetables with our homemade dressing',
-        price: 'K30.00'
-      }
+      { id: 'new-flava', name: 'New Flava Wrap', description: 'Our newest wrap with chicken, veggies and special sauce', price: 'K35.00', popular: true },
+      { id: 'beef-wrap', name: 'Beef Wrap', description: 'Tender beef strips with fresh vegetables and our signature sauce', price: 'K40.00' },
+      { id: 'veggie-wrap', name: 'Veggie Wrap', description: 'A delicious mix of grilled vegetables with our homemade dressing', price: 'K30.00' }
     ]
   },
   {
@@ -76,25 +41,9 @@ const menuCategories = [
     name: 'Beef Samosas',
     description: 'Crispy pastry filled with spiced beef',
     items: [
-      {
-        id: 'beef-samosa',
-        name: 'Beef Samosa (3 pcs)',
-        description: 'Crispy triangular pastry filled with spiced minced beef',
-        price: 'K25.00',
-        popular: true
-      },
-      {
-        id: 'beef-samosa-5',
-        name: 'Beef Samosa (5 pcs)',
-        description: 'Crispy triangular pastry filled with spiced minced beef',
-        price: 'K40.00'
-      },
-      {
-        id: 'beef-samosa-10',
-        name: 'Beef Samosa (10 pcs)',
-        description: 'Crispy triangular pastry filled with spiced minced beef',
-        price: 'K75.00'
-      }
+      { id: 'beef-samosa', name: 'Beef Samosa (3 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K25.00', popular: true },
+      { id: 'beef-samosa-5', name: 'Beef Samosa (5 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K40.00' },
+      { id: 'beef-samosa-10', name: 'Beef Samosa (10 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K75.00' }
     ]
   },
   {
@@ -102,25 +51,9 @@ const menuCategories = [
     name: 'Combo Meals',
     description: 'Perfect combinations for any appetite',
     items: [
-      {
-        id: '4d-savage',
-        name: '4D Savage Combo',
-        description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves',
-        price: 'K120.00',
-        popular: true
-      },
-      {
-        id: 'family-feast',
-        name: 'Family Feast',
-        description: 'A selection of our most popular items perfect for sharing with 4-6 people',
-        price: 'K200.00'
-      },
-      {
-        id: 'duo-delight',
-        name: 'Duo Delight',
-        description: 'Perfect meal for two: 2 wraps, 4 sausages, and 2 drinks',
-        price: 'K90.00'
-      }
+      { id: '4d-savage', name: '4D Savage Combo', description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves', price: 'K120.00', popular: true },
+      { id: 'family-feast', name: 'Family Feast', description: 'A selection of our most popular items perfect for sharing with 4-6 people', price: 'K200.00' },
+      { id: 'duo-delight', name: 'Duo Delight', description: 'Perfect meal for two: 2 wraps, 4 sausages, and 2 drinks', price: 'K90.00' }
     ]
   }
 ];
@@ -134,7 +67,6 @@ const menuCategories = [
         Explore our range of delicious African-inspired dishes made with fresh, quality ingredients.
       </p>
       
-      <!-- Menu navigation -->
       <div class="flex flex-wrap justify-center gap-4 mb-12">
         {menuCategories.map(category => (
           <a href={`#${category.id}`} class="px-4 py-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -143,7 +75,6 @@ const menuCategories = [
         ))}
       </div>
       
-      <!-- Menu content -->
       <div class="space-y-16">
         {menuCategories.map(category => (
           <div id={category.id} class="scroll-mt-24">
@@ -152,30 +83,29 @@ const menuCategories = [
               <p class="text-text-light">{category.description}</p>
             </div>
             
-            <!-- Then in the menu items loop, add images -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {category.items.map(item => (
-    <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
-      <div class="h-40 overflow-hidden">
-        <Image 
-          src={categoryImages[category.id]} 
-          alt={item.name}
-          class="w-full h-full object-cover"
-        />
-      </div>
-      <div class="p-6">
-        <div class="flex justify-between items-start mb-2">
-          <h3 class="font-semibold">{item.name}</h3>
-          <span class="text-primary font-bold">{item.price}</span>
-        </div>
-        <p class="text-text-light text-sm mb-4">{item.description}</p>
-        <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>
-          Add to Order
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {category.items.map(item => (
+                <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                  <div class="h-40 overflow-hidden">
+                    <Image 
+                      src={categoryImages[category.id]} 
+                      alt={item.name}
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div class="p-6">
+                    <div class="flex justify-between items-start mb-2">
+                      <h3 class="font-semibold">{item.name}</h3>
+                      <span class="text-primary font-bold">{item.price}</span>
+                    </div>
+                    <p class="text-text-light text-sm mb-4">{item.description}</p>
+                    <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>
+                      Add to Order
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
@@ -191,15 +121,13 @@ const menuCategories = [
           </span>
         </a>
       </div>
-    </div>
+    Berlusconi    </div>
   </section>
   
-  <OrderNowButton />
   <Toast id="toast" class="hidden fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50" />
 </Layout>
 
 <script>
-  // Define types
   interface CartItem {
     id: string;
     name: string;
@@ -219,74 +147,34 @@ const menuCategories = [
         if (id && name && price) {
           addToCart(id, name, price);
           showToast(`${name} added to cart!`);
-          updateCartCount();
+          document.dispatchEvent(new Event('cartUpdated'));
         }
       });
     });
     
-    // FIX: Explicitly type all parameters
     function addToCart(id: string, name: string, price: string): void {
-      // Get current cart from localStorage
       const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-      
-      // Check if item already exists in cart
       const existingItem = cart.find((item: CartItem) => item.id === id);
       
       if (existingItem) {
-        // Increase quantity if item already exists
         existingItem.quantity += 1;
       } else {
-        // Add new item to cart
-        cart.push({
-          id,
-          name,
-          price,
-          quantity: 1
-        });
+        cart.push({ id, name, price, quantity: 1 });
       }
       
-      // Save updated cart to localStorage
       localStorage.setItem('cart', JSON.stringify(cart));
     }
     
-    // FIX: Type the message parameter
     function showToast(message: string): void {
       const toast = document.getElementById('toast');
-      
-      // FIX: Null safety check
       if (toast) {
-        // Set toast content and style
         toast.textContent = message;
         toast.className = 'fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 bg-green-500 text-white';
-        
-        // Show toast
         toast.classList.remove('hidden');
-        
-        // Hide toast after 3 seconds
         setTimeout(() => {
           toast.classList.add('hidden');
         }, 3000);
       }
     }
-    
-    function updateCartCount(): void {
-      const cartCountElement = document.getElementById('cart-count');
-      if (cartCountElement) {
-        const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
-        // FIX: Type the reduce parameters explicitly
-        const count = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
-        cartCountElement.textContent = count.toString();
-        
-        // Hide count if cart is empty
-        if (count === 0) {
-          cartCountElement.classList.add('hidden');
-        } else {
-          cartCountElement.classList.remove('hidden');
-        }
-      }
-    }
-    
-    // Initialize cart count on page load
-    updateCartCount();
   });
 </script>

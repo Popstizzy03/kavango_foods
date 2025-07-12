@@ -12,7 +12,6 @@ import "../styles/global.css";
       </p>
       
       <div class="max-w-4xl mx-auto">
-        <!-- If user is not logged in -->
         <div id="not-logged-in" class="bg-white p-8 rounded-xl shadow-md text-center">
           <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mx-auto mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" viewBox="0 0 20 20" fill="currentColor">
@@ -39,12 +38,10 @@ import "../styles/global.css";
           </div>
         </div>
         
-        <!-- Order history will be shown here -->
         <div id="order-history-container" class="hidden">
           <div class="bg-white p-8 rounded-xl shadow-md mb-6">
             <h2 class="text-2xl font-semibold mb-6">Your Orders</h2>
             <div id="orders-list" class="space-y-6">
-              <!-- Orders will be listed here -->
               <div class="text-center text-text-light py-8">
                 No orders found for this phone number.
               </div>
@@ -58,27 +55,73 @@ import "../styles/global.css";
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Type-safe DOM element queries with proper typing
     const phoneInput = document.getElementById('phone-input') as HTMLInputElement | null;
     const trackBtn = document.getElementById('track-btn') as HTMLButtonElement | null;
     const phoneError = document.getElementById('phone-error') as HTMLElement | null;
     const notLoggedIn = document.getElementById('not-logged-in') as HTMLElement | null;
     const orderHistoryContainer = document.getElementById('order-history-container') as HTMLElement | null;
+    const ordersList = document.getElementById('orders-list') as HTMLElement | null;
     
-    // Early return if critical elements are missing
-    if (!phoneInput || !trackBtn || !phoneError || !notLoggedIn || !orderHistoryContainer) {
+    if (!phoneInput || !trackBtn || !phoneError || !notLoggedIn || !orderHistoryContainer || !ordersList) {
       console.error('Required DOM elements not found');
       return;
     }
     
-    // For demo purposes, show an order if the last order exists
-    const lastOrderData = localStorage.getItem('lastOrder');
-    if (lastOrderData) {
-      const lastOrder = JSON.parse(lastOrderData);
+    function calculateTotal(cart) {
+      return cart.reduce((sum, item) => sum + parseFloat(item.price.replace('K', '')) * item.quantity, 0).toFixed(2);
+    }
+    
+    function renderOrders(phoneNumber) {
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const userOrders = orders.filter(order => order.phone === phoneNumber);
       
-      // Pre-fill the phone if available
-      if (lastOrder.phone) {
-        phoneInput.value = lastOrder.phone;
+      if (userOrders.length > 0) {
+        ordersList.innerHTML = userOrders.map(order => `
+          <div class="border rounded-lg p-6">
+            <div class="flex flex-col md:flex-row justify-between mb-4">
+              <div>
+                <h3 class="font-semibold">Order #${order.id}</h3>
+                <p class="text-text-light text-sm">${new Date(order.date).toLocaleDateString()}</p>
+              </div>
+              <div class="mt-2 md:mt-0">
+                <span class="inline-block px-3 py-1 text-sm font-semibold text-green-800 bg-green-100 rounded-full">
+                  ${order.status}
+                </span>
+              </div>
+            </div>
+            <div class="border-t pt-4">
+              <div class="flex justify-between mb-2">
+                <span>Total:</span>
+                <span class="font-semibold">K${order.total}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Items:</span>
+                <span>${order.items.length} items</span>
+              </div>
+            </div>
+            <div class="mt-4 flex justify-between">
+              <button class="text-primary font-medium flex items-center">
+                <span>View Details</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <button class="delete-order-btn text-red-500 font-medium" data-order-id="${order.id}">Delete Order</button>
+            </div>
+          </div>
+        `).join('');
+        
+        document.querySelectorAll('.delete-order-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const orderId = btn.dataset.orderId;
+            let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            orders = orders.filter(order => order.id !== parseInt(orderId));
+            localStorage.setItem('orders', JSON.stringify(orders));
+            renderOrders(phoneNumber);
+          });
+        });
+      } else {
+        ordersList.innerHTML = '<div class="text-center text-text-light py-8">No orders found for this phone number.</div>';
       }
     }
     
@@ -91,7 +134,6 @@ import "../styles/global.css";
         return;
       }
       
-      // Basic validation - can enhance as needed
       if (!/^\d{10}$/.test(phoneNumber.replace(/\D/g, ''))) {
         phoneError.textContent = 'Please enter a valid 10-digit phone number';
         phoneError.classList.remove('hidden');
@@ -99,69 +141,9 @@ import "../styles/global.css";
       }
       
       phoneError.classList.add('hidden');
-      
-      // In a real app, you would fetch orders from an API
-      // For demo purposes, we'll show the last order if available
-      const lastOrderData = localStorage.getItem('lastOrder');
-      if (lastOrderData) {
-        notLoggedIn.classList.add('hidden');
-        orderHistoryContainer.classList.remove('hidden');
-        
-        const lastOrder = JSON.parse(lastOrderData);
-        const ordersList = document.getElementById('orders-list') as HTMLElement | null;
-        
-        if (!ordersList) {
-          console.error('Orders list element not found');
-          return;
-        }
-        
-        // Create a demo order entry
-        const orderDate = lastOrder.date || new Date().toLocaleDateString();
-        const orderNumber = lastOrder.orderNumber || 'OKV' + Math.floor(Math.random() * 10000);
-        const orderTotalData = localStorage.getItem('orderTotal');
-        const orderTotal = lastOrder.total || `K${orderTotalData || '0.00'}`;
-        
-        const lastOrderItemsData = localStorage.getItem('lastOrderItems');
-        const itemCount = lastOrderItemsData ? JSON.parse(lastOrderItemsData).length : 0;
-        
-        ordersList.innerHTML = `
-          <div class="border rounded-lg p-6">
-            <div class="flex flex-col md:flex-row justify-between mb-4">
-              <div>
-                <h3 class="font-semibold">Order #${orderNumber}</h3>
-                <p class="text-text-light text-sm">${orderDate}</p>
-              </div>
-              <div class="mt-2 md:mt-0">
-                <span class="inline-block px-3 py-1 text-sm font-semibold text-green-800 bg-green-100 rounded-full">
-                  Delivered
-                </span>
-              </div>
-            </div>
-            <div class="border-t pt-4">
-              <div class="flex justify-between mb-2">
-                <span>Total:</span>
-                <span class="font-semibold">${orderTotal}</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Items:</span>
-                <span>${itemCount} items</span>
-              </div>
-            </div>
-            <div class="mt-4">
-              <button class="text-primary font-medium flex items-center">
-                <span>View Details</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        `;
-      } else {
-        // Show empty state
-        notLoggedIn.classList.add('hidden');
-        orderHistoryContainer.classList.remove('hidden');
-      }
+      notLoggedIn.classList.add('hidden');
+      orderHistoryContainer.classList.remove('hidden');
+      renderOrders(phoneNumber);
     });
   });
 </script>

@@ -49,7 +49,6 @@ import "../styles/global.css";
 </Layout>
 
 <script>
-  // Define interfaces for better type safety
   interface CartItem {
     id: string;
     name: string;
@@ -57,9 +56,7 @@ import "../styles/global.css";
     quantity: number;
   }
 
-  // Cart functionality
   document.addEventListener('DOMContentLoaded', () => {
-    // Type-safe DOM element selection with proper null checks
     const cartItemsContainer = document.getElementById('cart-items-container') as HTMLElement | null;
     const emptyCartContainer = document.getElementById('empty-cart-container') as HTMLElement | null;
     const cartSummary = document.getElementById('cart-summary') as HTMLElement | null;
@@ -67,35 +64,28 @@ import "../styles/global.css";
     const totalElement = document.getElementById('total') as HTMLElement | null;
     const proceedToCheckoutBtn = document.getElementById('proceed-to-checkout') as HTMLAnchorElement | null;
     
-    // Validate all required elements exist
     if (!cartItemsContainer || !emptyCartContainer || !cartSummary || !subtotalElement || !totalElement || !proceedToCheckoutBtn) {
       console.error('Required cart elements not found');
       return;
     }
     
-    // Function to render cart and attach event listeners
     function renderCart() {
-      // Get cart from localStorage with proper typing
       const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
       
       if (cart.length === 0) {
-        // Show empty cart message
         emptyCartContainer.classList.remove('hidden');
         cartItemsContainer.classList.add('hidden');
         cartSummary.classList.add('hidden');
         proceedToCheckoutBtn.classList.add('hidden');
       } else {
-        // Show cart items
         emptyCartContainer.classList.add('hidden');
         cartItemsContainer.classList.remove('hidden');
         cartSummary.classList.remove('hidden');
         proceedToCheckoutBtn.classList.remove('hidden');
         
-        // Calculate totals
         let subtotal = 0;
-        const deliveryFee = 25; // Fixed delivery fee in Kwacha
+        const deliveryFee = 25;
         
-        // Render cart items
         cartItemsContainer.innerHTML = `
           <h2 class="text-2xl font-semibold mb-6">Your Items</h2>
           <div class="space-y-4" id="cart-items-list"></div>
@@ -137,17 +127,14 @@ import "../styles/global.css";
           `;
         });
         
-        // Update totals
         const total = subtotal + deliveryFee;
         subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
         totalElement.textContent = `K${total.toFixed(2)}`;
         
-        // Add event listeners
         addCartEventListeners();
       }
     }
     
-    // Function to add event listeners to cart buttons
     function addCartEventListeners() {
       const decreaseBtns = document.querySelectorAll('.decrease-btn') as NodeListOf<HTMLButtonElement>;
       const increaseBtns = document.querySelectorAll('.increase-btn') as NodeListOf<HTMLButtonElement>;
@@ -164,10 +151,7 @@ import "../styles/global.css";
           if (cart[index] && cart[index].quantity > 1) {
             cart[index].quantity--;
             updateCart(cart);
-            renderCart(); // Re-render instead of page reload
-            
-            // Also add to order history
-            addToOrderHistory('decrease', cart[index]);
+            renderCart();
           }
         });
       });
@@ -183,10 +167,7 @@ import "../styles/global.css";
           if (cart[index]) {
             cart[index].quantity++;
             updateCart(cart);
-            renderCart(); // Re-render instead of page reload
-            
-            // Also add to order history
-            addToOrderHistory('increase', cart[index]);
+            renderCart();
           }
         });
       });
@@ -199,32 +180,25 @@ import "../styles/global.css";
           const index = parseInt(indexStr);
           const cart = JSON.parse(localStorage.getItem('cart') || '[]');
           
-          // Add to order history before removing
-          addToOrderHistory('remove', cart[index]);
+          // Commented out until implemented
+          // addToOrderHistory('remove', cart[index]);
           
           cart.splice(index, 1);
           updateCart(cart);
-          renderCart(); // Re-render instead of page reload
+          renderCart();
         });
       });
     }
     
-    // Helper function to update cart in localStorage
     function updateCart(cart: CartItem[]): void {
       localStorage.setItem('cart', JSON.stringify(cart));
-      
-      // Dispatch a custom event that other components can listen for
-      const event = new Event('cartUpdated');
-      document.dispatchEvent(event);
+      document.dispatchEvent(new Event('cartUpdated'));
     }
     
-    // Initial render
     renderCart();
     
-    // Listen for custom cartUpdated events
     document.addEventListener('cartUpdated', () => {
-      // Update any cart-related UI elements that need to be synced
-      const cartCountElement = document.getElementById('cart-count');
+      const cartCountElement = document.getElementById('header-cart-count');
       if (cartCountElement) {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const count = cart.reduce((sum, item) => sum + item.quantity, 0);
