@@ -49,167 +49,175 @@ import "../styles/global.css";
 </Layout>
 
 <script>
-  interface CartItem {
-    id: string;
-    name: string;
-    price: string;
-    quantity: number;
+// Add proper interfaces at the top of your script section
+interface CartItem {
+  id: string;
+  name: string;
+  price: string;
+  quantity: number;
+}
+
+interface Order {
+  id: number;
+  date: string;
+  status: string;
+  total: string;
+  phone: string;
+  items: CartItem[];
+}
+
+// Fixed cart.astro script section
+document.addEventListener('DOMContentLoaded', () => {
+  // Use assertion functions for better null safety
+  function getRequiredElement<T extends HTMLElement>(id: string): T {
+    const element = document.getElementById(id) as T;
+    if (!element) {
+      throw new Error(`Required element with id "${id}" not found`);
+    }
+    return element;
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const cartItemsContainer = document.getElementById('cart-items-container') as HTMLElement | null;
-    const emptyCartContainer = document.getElementById('empty-cart-container') as HTMLElement | null;
-    const cartSummary = document.getElementById('cart-summary') as HTMLElement | null;
-    const subtotalElement = document.getElementById('subtotal') as HTMLElement | null;
-    const totalElement = document.getElementById('total') as HTMLElement | null;
-    const proceedToCheckoutBtn = document.getElementById('proceed-to-checkout') as HTMLAnchorElement | null;
+  // Get all required elements with proper error handling
+  const cartItemsContainer = getRequiredElement<HTMLElement>('cart-items-container');
+  const emptyCartContainer = getRequiredElement<HTMLElement>('empty-cart-container');
+  const cartSummary = getRequiredElement<HTMLElement>('cart-summary');
+  const subtotalElement = getRequiredElement<HTMLElement>('subtotal');
+  const totalElement = getRequiredElement<HTMLElement>('total');
+  const proceedToCheckoutBtn = getRequiredElement<HTMLAnchorElement>('proceed-to-checkout');
+  
+  function renderCart(): void {
+    const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
     
-    if (!cartItemsContainer || !emptyCartContainer || !cartSummary || !subtotalElement || !totalElement || !proceedToCheckoutBtn) {
-      console.error('Required cart elements not found');
-      return;
-    }
-    
-    function renderCart() {
-      const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (cart.length === 0) {
+      emptyCartContainer.classList.remove('hidden');
+      cartItemsContainer.classList.add('hidden');
+      cartSummary.classList.add('hidden');
+      proceedToCheckoutBtn.classList.add('hidden');
+    } else {
+      emptyCartContainer.classList.add('hidden');
+      cartItemsContainer.classList.remove('hidden');
+      cartSummary.classList.remove('hidden');
+      proceedToCheckoutBtn.classList.remove('hidden');
       
-      if (cart.length === 0) {
-        emptyCartContainer.classList.remove('hidden');
-        cartItemsContainer.classList.add('hidden');
-        cartSummary.classList.add('hidden');
-        proceedToCheckoutBtn.classList.add('hidden');
-      } else {
-        emptyCartContainer.classList.add('hidden');
-        cartItemsContainer.classList.remove('hidden');
-        cartSummary.classList.remove('hidden');
-        proceedToCheckoutBtn.classList.remove('hidden');
+      let subtotal = 0;
+      const deliveryFee = 25;
+      
+      cartItemsContainer.innerHTML = `
+        <h2 class="text-2xl font-semibold mb-6">Your Items</h2>
+        <div class="space-y-4" id="cart-items-list"></div>
+      `;
+      
+      const cartItemsList = getRequiredElement<HTMLElement>('cart-items-list');
+      
+      cart.forEach((item: CartItem, index: number) => {
+        const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
+        subtotal += itemTotal;
         
-        let subtotal = 0;
-        const deliveryFee = 25;
-        
-        cartItemsContainer.innerHTML = `
-          <h2 class="text-2xl font-semibold mb-6">Your Items</h2>
-          <div class="space-y-4" id="cart-items-list"></div>
-        `;
-        
-        const cartItemsList = document.getElementById('cart-items-list') as HTMLElement | null;
-        
-        if (!cartItemsList) {
-          console.error('Cart items list element not found');
-          return;
-        }
-        
-        cart.forEach((item: CartItem, index: number) => {
-          const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
-          subtotal += itemTotal;
-          
-          cartItemsList.innerHTML += `
-            <div class="flex items-center justify-between border-b pb-4">
-              <div class="flex items-center">
-                <div class="ml-4">
-                  <h3 class="font-semibold">${item.name}</h3>
-                  <p class="text-text-light text-sm">Price: ${item.price}</p>
-                </div>
-              </div>
-              <div class="flex items-center">
-                <div class="flex items-center border rounded-md mr-4">
-                  <button class="decrease-btn px-3 py-1" data-index="${index}">-</button>
-                  <span class="px-3 quantity">${item.quantity}</span>
-                  <button class="increase-btn px-3 py-1" data-index="${index}">+</button>
-                </div>
-                <span class="font-semibold mr-4">K${itemTotal.toFixed(2)}</span>
-                <button class="remove-btn text-red-500" data-index="${index}">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                  </svg>
-                </button>
+        cartItemsList.innerHTML += `
+          <div class="flex items-center justify-between border-b pb-4">
+            <div class="flex items-center">
+              <div class="ml-4">
+                <h3 class="font-semibold">${item.name}</h3>
+                <p class="text-text-light text-sm">Price: ${item.price}</p>
               </div>
             </div>
-          `;
-        });
-        
-        const total = subtotal + deliveryFee;
-        subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
-        totalElement.textContent = `K${total.toFixed(2)}`;
-        
-        addCartEventListeners();
-      }
+            <div class="flex items-center">
+              <div class="flex items-center border rounded-md mr-4">
+                <button class="decrease-btn px-3 py-1" data-index="${index}">-</button>
+                <span class="px-3 quantity">${item.quantity}</span>
+                <button class="increase-btn px-3 py-1" data-index="${index}">+</button>
+              </div>
+              <span class="font-semibold mr-4">K${itemTotal.toFixed(2)}</span>
+              <button class="remove-btn text-red-500" data-index="${index}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      
+      const total = subtotal + deliveryFee;
+      subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
+      totalElement.textContent = `K${total.toFixed(2)}`;
+      
+      addCartEventListeners();
     }
+  }
+  
+  function addCartEventListeners(): void {
+    const decreaseBtns = document.querySelectorAll('.decrease-btn') as NodeListOf<HTMLButtonElement>;
+    const increaseBtns = document.querySelectorAll('.increase-btn') as NodeListOf<HTMLButtonElement>;
+    const removeBtns = document.querySelectorAll('.remove-btn') as NodeListOf<HTMLButtonElement>;
     
-    function addCartEventListeners() {
-      const decreaseBtns = document.querySelectorAll('.decrease-btn') as NodeListOf<HTMLButtonElement>;
-      const increaseBtns = document.querySelectorAll('.increase-btn') as NodeListOf<HTMLButtonElement>;
-      const removeBtns = document.querySelectorAll('.remove-btn') as NodeListOf<HTMLButtonElement>;
-      
-      decreaseBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const indexStr = btn.dataset.index;
-          if (!indexStr) return;
-          
-          const index = parseInt(indexStr);
-          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-          
-          if (cart[index] && cart[index].quantity > 1) {
-            cart[index].quantity--;
-            updateCart(cart);
-            renderCart();
-          }
-        });
-      });
-      
-      increaseBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const indexStr = btn.dataset.index;
-          if (!indexStr) return;
-          
-          const index = parseInt(indexStr);
-          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-          
-          if (cart[index]) {
-            cart[index].quantity++;
-            updateCart(cart);
-            renderCart();
-          }
-        });
-      });
-      
-      removeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const indexStr = btn.dataset.index;
-          if (!indexStr) return;
-          
-          const index = parseInt(indexStr);
-          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-          
-          // Commented out until implemented
-          // addToOrderHistory('remove', cart[index]);
-          
-          cart.splice(index, 1);
+    decreaseBtns.forEach((btn: HTMLButtonElement) => {
+      btn.addEventListener('click', () => {
+        const indexStr = btn.dataset.index;
+        if (!indexStr) return;
+        
+        const index = parseInt(indexStr);
+        const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+        
+        if (cart[index] && cart[index].quantity > 1) {
+          cart[index].quantity--;
           updateCart(cart);
           renderCart();
-        });
-      });
-    }
-    
-    function updateCart(cart: CartItem[]): void {
-      localStorage.setItem('cart', JSON.stringify(cart));
-      document.dispatchEvent(new Event('cartUpdated'));
-    }
-    
-    renderCart();
-    
-    document.addEventListener('cartUpdated', () => {
-      const cartCountElement = document.getElementById('header-cart-count');
-      if (cartCountElement) {
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-        cartCountElement.textContent = count.toString();
-        
-        if (count === 0) {
-          cartCountElement.classList.add('hidden');
-        } else {
-          cartCountElement.classList.remove('hidden');
         }
-      }
+      });
     });
+    
+    increaseBtns.forEach((btn: HTMLButtonElement) => {
+      btn.addEventListener('click', () => {
+        const indexStr = btn.dataset.index;
+        if (!indexStr) return;
+        
+        const index = parseInt(indexStr);
+        const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+        
+        if (cart[index]) {
+          cart[index].quantity++;
+          updateCart(cart);
+          renderCart();
+        }
+      });
+    });
+    
+    removeBtns.forEach((btn: HTMLButtonElement) => {
+      btn.addEventListener('click', () => {
+        const indexStr = btn.dataset.index;
+        if (!indexStr) return;
+        
+        const index = parseInt(indexStr);
+        const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+        
+        cart.splice(index, 1);
+        updateCart(cart);
+        renderCart();
+      });
+    });
+  }
+  
+  function updateCart(cart: CartItem[]): void {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    document.dispatchEvent(new Event('cartUpdated'));
+  }
+  
+  renderCart();
+  
+  document.addEventListener('cartUpdated', () => {
+    const cartCountElement = document.getElementById('header-cart-count');
+    if (cartCountElement) {
+      const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+      const count = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
+      cartCountElement.textContent = count.toString();
+      
+      if (count === 0) {
+        cartCountElement.classList.add('hidden');
+      } else {
+        cartCountElement.classList.remove('hidden');
+      }
+    }
   });
+});
 </script>
