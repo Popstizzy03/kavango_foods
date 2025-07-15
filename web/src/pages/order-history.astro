@@ -83,6 +83,9 @@ import "../styles/global.css";
       total: string;
       phone: string;
       items: CartItem[];
+      deliveryAddress?: string;
+      customerName?: string;
+      notes?: string;
     }
     
     function calculateTotal(cart: CartItem[]): string {
@@ -90,10 +93,15 @@ import "../styles/global.css";
     }
     
     function renderOrders(phoneNumber: string): void {
+      if (!ordersList) return; // Extra null safety check
+      
       const orders: Order[] = JSON.parse(localStorage.getItem('orders') || '[]');
       const userOrders = orders.filter(order => order.phone === phoneNumber);
       
       if (userOrders.length > 0) {
+        // Sort orders by date (newest first)
+        userOrders.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
         ordersList.innerHTML = userOrders.map((order: Order) => `
           <div class="border rounded-lg p-6">
             <div class="flex flex-col md:flex-row justify-between mb-4">
@@ -112,30 +120,61 @@ import "../styles/global.css";
                 <span>Total:</span>
                 <span class="font-semibold">K${order.total}</span>
               </div>
-              <div class="flex justify-between">
+              <div class="flex justify-between mb-2">
                 <span>Items:</span>
                 <span>${order.items.length} items</span>
               </div>
+              ${order.deliveryAddress ? `
+                <div class="flex justify-between mb-2">
+                  <span>Delivery to:</span>
+                  <span class="text-right">${order.deliveryAddress}</span>
+                </div>
+              ` : ''}
             </div>
             <div class="mt-4 flex justify-between">
-              <button class="text-primary font-medium flex items-center">
+              <button class="view-details-btn text-primary font-medium flex items-center" data-order-id="${order.id}">
                 <span>View Details</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
               </button>
-              <button class="delete-order-btn text-red-500 font-medium" data-order-id="${order.id}">Delete Order</button>
+              <button class="reorder-btn text-secondary font-medium" data-order-id="${order.id}">Reorder</button>
+            </div>
+            <div id="order-details-${order.id}" class="hidden mt-4 pt-4 border-t">
+              <h4 class="font-semibold mb-2">Order Items:</h4>
+              <div class="space-y-2">
+                ${order.items.map(item => `
+                  <div class="flex justify-between text-sm">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>K${(parseFloat(item.price.replace('K', '')) * item.quantity).toFixed(2)}</span>
+                  </div>
+                `).join('')}
+              </div>
             </div>
           </div>
         `).join('');
         
-        document.querySelectorAll('.delete-order-btn').forEach((btn) => {
+        // Add event listeners for view details
+        document.querySelectorAll('.view-details-btn').forEach((btn) => {
           btn.addEventListener('click', () => {
             const orderId = (btn as HTMLElement).dataset.orderId;
-            let orders: Order[] = JSON.parse(localStorage.getItem('orders') || '[]');
-            orders = orders.filter(order => order.id !== parseInt(orderId || '0'));
-            localStorage.setItem('orders', JSON.stringify(orders));
-            renderOrders(phoneNumber);
+            const detailsDiv = document.getElementById(`order-details-${orderId}`);
+            if (detailsDiv) {
+              detailsDiv.classList.toggle('hidden');
+            }
+          });
+        });
+        
+        // Add event listeners for reorder
+        document.querySelectorAll('.reorder-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const orderId = (btn as HTMLElement).dataset.orderId;
+            const order = userOrders.find(o => o.id === parseInt(orderId || '0'));
+            if (order) {
+              // Add items back to cart
+              localStorage.setItem('cart', JSON.stringify(order.items));
+              window.location.href = '/cart';
+            }
           });
         });
       } else {

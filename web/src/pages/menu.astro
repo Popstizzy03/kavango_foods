@@ -8,14 +8,38 @@ import wrap from '../assets/tasty-wraps.png'
 import samosa from '../assets/beef-samosas.png'
 import combo from '../assets/combo-meals.png'
 
-const categoryImages = {
+// Define type for category images
+type CategoryImage = {
+  sausages: typeof sausage;
+  wraps: typeof wrap;
+  samosas: typeof samosa;
+  combos: typeof combo;
+}
+
+const categoryImages: CategoryImage = {
   'sausages': sausage,
   'wraps': wrap,
   'samosas': samosa,
   'combos': combo
 };
 
-const menuCategories = [
+// Define types for menu structure
+interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  popular?: boolean;
+}
+
+interface MenuCategory {
+  id: keyof CategoryImage;
+  name: string;
+  description: string;
+  items: MenuItem[];
+}
+
+const menuCategories: MenuCategory[] = [
   {
     id: 'sausages',
     name: 'Sausage Goodness',
@@ -121,7 +145,7 @@ const menuCategories = [
           </span>
         </a>
       </div>
-    Berlusconi    </div>
+    </div>
   </section>
   
   <Toast id="toast" class="hidden fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50" />

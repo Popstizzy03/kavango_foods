@@ -53,6 +53,18 @@ import "../styles/global.css";
     quantity: number;
   }
 
+  interface Order {
+    id: number;
+    date: string;
+    phone: string;
+    items: CartItem[];
+    total: string;
+    status: string;
+    deliveryAddress?: string;
+    customerName?: string;
+    notes?: string;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const orderSummaryElement = document.getElementById('order-summary');
     const subtotalElement = document.getElementById('subtotal');
@@ -72,7 +84,6 @@ import "../styles/global.css";
       // Create order summary HTML
       let orderSummaryHTML = '<div class="space-y-4">';
       
-      // FIX: Explicitly type the parameter
       cart.forEach((item: CartItem) => {
         const itemTotal = parseFloat(item.price.replace('K', '')) * item.quantity;
         subtotal += itemTotal;
@@ -90,12 +101,12 @@ import "../styles/global.css";
       
       orderSummaryHTML += '</div>';
       
-      // FIX: Null safety checks
+      // Update DOM with null safety
       if (orderSummaryElement) {
         orderSummaryElement.innerHTML = orderSummaryHTML;
       }
       
-      // Update totals with null safety
+      // Update totals
       const total = subtotal + deliveryFee;
       if (subtotalElement) {
         subtotalElement.textContent = `K${subtotal.toFixed(2)}`;
@@ -109,17 +120,28 @@ import "../styles/global.css";
     }
   });
 
-  function saveOrder(cart, phone) {
-  const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-  const order = {
-    id: Date.now(),
-    date: new Date().toISOString(),
-    phone,
-    items: cart,
-    total: cart.reduce((sum, item) => sum + parseFloat(item.price.replace('K', '')) * item.quantity, 0).toFixed(2),
-    status: 'Pending'
-  };
-  orders.push(order);
-  localStorage.setItem('orders', JSON.stringify(orders));
-}
+  // Global function to save order (properly typed)
+  (window as any).saveOrder = function(cart: CartItem[], phone: string, customerInfo?: {
+    name: string;
+    address: string;
+    notes?: string;
+  }) {
+    const orders: Order[] = JSON.parse(localStorage.getItem('orders') || '[]');
+    const order: Order = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      phone,
+      items: cart,
+      total: cart.reduce((sum: number, item: CartItem) => 
+        sum + parseFloat(item.price.replace('K', '')) * item.quantity, 0
+      ).toFixed(2),
+      status: 'Pending',
+      deliveryAddress: customerInfo?.address,
+      customerName: customerInfo?.name,
+      notes: customerInfo?.notes
+    };
+    orders.push(order);
+    localStorage.setItem('orders', JSON.stringify(orders));
+    return order;
+  }
 </script>
