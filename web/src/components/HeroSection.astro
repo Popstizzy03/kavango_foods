@@ -2,6 +2,47 @@
 import "../styles/global.css";
 import { Image } from 'astro:assets'
 import hero from "../assets/hero-sausage.jpg"
+
+const features = [
+  {
+    icon: "sun",
+    title: "Fresh Ingredients",
+    description: "Sourced locally daily",
+    bgColor: "bg-orange-100",
+    textColor: "text-primary"
+  },
+  {
+    icon: "heart",
+    title: "Quality Taste",
+    description: "Authentic recipes",
+    bgColor: "bg-green-100",
+    textColor: "text-secondary"
+  },
+  {
+    icon: "credit-card",
+    title: "Easy Payment",
+    description: "Secure transactions",
+    bgColor: "bg-blue-100",
+    textColor: "text-blue-600"
+  },
+  {
+    icon: "truck",
+    title: "Fast Delivery",
+    description: "Quick at your door",
+    bgColor: "bg-purple-100",
+    textColor: "text-purple-600"
+  }
+];
+
+const getIconSvg = (iconName: string) => {
+  const icons = {
+    sun: `<path d="M12 2v2M12 14v8M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>`,
+    heart: `<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>`,
+    'credit-card': `<rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M7 15h0M2 9.5h20"></path>`,
+    truck: `<rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>`
+  };
+  return icons[iconName] || '';
+};
 ---
 
 <section class="relative bg-gradient-to-r from-orange-50 to-green-50 overflow-hidden pt-16 md:pt-24">
@@ -38,57 +79,19 @@ import hero from "../assets/hero-sausage.jpg"
   
   <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-xl shadow-md flex flex-col md:flex-row justify-between p-6 gap-6">
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v2M12 14v8M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
-          </svg>
+      {features.map(feature => (
+        <div class="flex items-center gap-4">
+          <div class={`w-12 h-12 ${feature.bgColor} rounded-full flex items-center justify-center ${feature.textColor}`}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <Fragment set:html={getIconSvg(feature.icon)} />
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-semibold">{feature.title}</h3>
+            <p class="text-text-light text-sm">{feature.description}</p>
+          </div>
         </div>
-        <div>
-          <h3 class="font-semibold">Fresh Ingredients</h3>
-          <p class="text-text-light text-sm">Sourced locally daily</p>
-        </div>
-      </div>
-      
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-secondary">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
-          </svg>
-        </div>
-        <div>
-          <h3 class="font-semibold">Quality Taste</h3>
-          <p class="text-text-light text-sm">Authentic recipes</p>
-        </div>
-      </div>
-      
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-            <path d="M7 15h0M2 9.5h20"></path>
-          </svg>
-        </div>
-        <div>
-          <h3 class="font-semibold">Easy Payment</h3>
-          <p class="text-text-light text-sm">Secure transactions</p>
-        </div>
-      </div>
-      
-      <div class="flex items-center gap-4">
-        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="1" y="3" width="15" height="13"></rect>
-            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-            <circle cx="5.5" cy="18.5" r="2.5"></circle>
-            <circle cx="18.5" cy="18.5" r="2.5"></circle>
-          </svg>
-        </div>
-        <div>
-          <h3 class="font-semibold">Fast Delivery</h3>
-          <p class="text-text-light text-sm">Quick at your door</p>
-        </div>
-      </div>
+      ))}
     </div>
   </div>
 </section>

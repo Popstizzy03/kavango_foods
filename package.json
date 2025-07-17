@@ -4,12 +4,27 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"pnpm run api:dev\" \"pnpm run web:dev\"",
+    "api:dev": "cd api && pnpm run dev",
+    "web:dev": "cd web && pnpm run dev",
+    "api:build": "cd api && pnpm run build",
+    "web:build": "cd web && pnpm run build",
+    "build": "pnpm run api:build && pnpm run web:build",
+    "api:start": "cd api && pnpm start",
+    "web:start": "cd web && pnpm start",
+    "start": "concurrently \"pnpm run api:start\" \"pnpm run web:start\"",
+    "api:seed": "cd api && pnpm run seed",
+    "postinstall": "cd api && pnpm install && cd ../web && pnpm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.12.4",
+  "workspaces": [
+    "api",
+    "web"
+  ],
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.10",

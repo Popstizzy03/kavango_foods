@@ -52,7 +52,7 @@ export interface OrderResponse {
   }>;
 }
 
-const API_BASE_URL = import.meta.env.API_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.API_URL || 'http://localhost:3000';
 
 class ApiService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {

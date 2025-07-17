@@ -9,6 +9,19 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Welcome to Okavango Foods API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      menu: '/api/menu',
+      orders: '/api/orders'
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -35,6 +48,23 @@ app.post('/api/orders', async (req, res) => {
   try {
     const { customerName, customerEmail, customerPhone, items, totalAmount } =
       req.body;
+
+    // Validate that all menu items exist
+    const menuItemIds = items.map((item: any) => item.menuItemId);
+    const existingMenuItems = await prisma.menuItem.findMany({
+      where: { id: { in: menuItemIds } },
+      select: { id: true },
+    });
+
+    const existingIds = existingMenuItems.map(item => item.id);
+    const missingIds = menuItemIds.filter((id: string) => !existingIds.includes(id));
+
+    if (missingIds.length > 0) {
+      return res.status(400).json({ 
+        error: 'Invalid menu item IDs', 
+        missingIds 
+      });
+    }
 
     const order = await prisma.order.create({
       data: {
