@@ -154,6 +154,9 @@ import PaymentButton from './PaymentButton.astro';
           ) + 25 // Add delivery fee
         };
         
+        // Debug: Log the order data to identify the issue
+        console.log('Order data being sent:', orderData);
+        
         // Make API call
         const response = await fetch('http://localhost:3000/api/orders', {
           method: 'POST',
@@ -164,7 +167,9 @@ import PaymentButton from './PaymentButton.astro';
         });
         
         if (!response.ok) {
-          throw new Error('Failed to create order');
+          const errorData = await response.json();
+          console.error('API Error:', errorData);
+          throw new Error(errorData.error || 'Failed to create order');
         }
         
         const order = await response.json();
