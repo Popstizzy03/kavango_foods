@@ -92,11 +92,63 @@ import "../styles/global.css";
       return cart.reduce((sum: number, item: CartItem) => sum + parseFloat(item.price.replace('K', '')) * item.quantity, 0).toFixed(2);
     }
     
-    function renderOrders(phoneNumber: string): void {
+    async function renderOrders(phoneNumber: string): Promise<void> {
       if (!ordersList) return; // Extra null safety check
       
-      const orders: Order[] = JSON.parse(localStorage.getItem('orders') || '[]');
-      const userOrders = orders.filter(order => order.phone === phoneNumber);
+      // Show loading state
+      ordersList.innerHTML = '<div class="text-center text-text-light py-8">Loading orders...</div>';
+      
+      try {
+        // Try to fetch orders from backend API
+        const response = await fetch('http://localhost:3001/api/orders');
+        let allOrders: Order[] = [];
+        
+        if (response.ok) {
+          const apiOrders = await response.json();
+          // Convert API orders to local format
+          allOrders = apiOrders.map((order: any) => ({
+            id: order.id,
+            date: order.createdAt,
+            status: order.status,
+            total: order.totalAmount.toFixed(2),
+            phone: order.customerPhone,
+            items: order.items.map((item: any) => ({
+              id: item.menuItem.id,
+              name: item.menuItem.name,
+              price: `K${item.price.toFixed(2)}`,
+              quantity: item.quantity
+            })),
+            deliveryAddress: order.deliveryAddress || '',
+            customerName: order.customerName || '',
+            notes: order.notes || ''
+          }));
+        } else {
+          throw new Error('Failed to fetch orders from API');
+        }
+        
+        // Filter orders for this phone number
+        const userOrders = allOrders.filter(order => order.phone === phoneNumber);
+        
+        // Fallback to localStorage if API fails or no orders found
+        if (userOrders.length === 0) {
+          const localOrders: Order[] = JSON.parse(localStorage.getItem('orders') || '[]');
+          userOrders.push(...localOrders.filter(order => order.phone === phoneNumber));
+        }
+        
+        displayOrders(userOrders);
+        
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+        
+        // Fallback to localStorage
+        const orders: Order[] = JSON.parse(localStorage.getItem('orders') || '[]');
+        const userOrders = orders.filter(order => order.phone === phoneNumber);
+        displayOrders(userOrders);
+      }
+    }
+    
+    function displayOrders(userOrders: Order[]): void {
+      if (!ordersList) return;
       
       if (userOrders.length > 0) {
         // Sort orders by date (newest first)
@@ -182,7 +234,7 @@ import "../styles/global.css";
       }
     }
     
-    trackBtn.addEventListener('click', () => {
+    trackBtn.addEventListener('click', async () => {
       const phoneNumber = phoneInput.value.trim();
       
       if (!phoneNumber) {
@@ -200,7 +252,7 @@ import "../styles/global.css";
       phoneError.classList.add('hidden');
       notLoggedIn.classList.add('hidden');
       orderHistoryContainer.classList.remove('hidden');
-      renderOrders(phoneNumber);
+      await renderOrders(phoneNumber);
     });
   });
 </script>

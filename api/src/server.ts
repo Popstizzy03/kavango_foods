@@ -1,10 +1,10 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
@@ -20,8 +20,8 @@ app.get('/api/menu', async (req, res) => {
     const menuItems = await prisma.menuItem.findMany({
       where: { isActive: true },
       include: {
-        category: true
-      }
+        category: true,
+      },
     });
     res.json(menuItems);
   } catch (error) {
@@ -33,8 +33,9 @@ app.get('/api/menu', async (req, res) => {
 // Create order endpoint
 app.post('/api/orders', async (req, res) => {
   try {
-    const { customerName, customerEmail, customerPhone, items, totalAmount } = req.body;
-    
+    const { customerName, customerEmail, customerPhone, items, totalAmount } =
+      req.body;
+
     const order = await prisma.order.create({
       data: {
         customerName,
@@ -46,17 +47,17 @@ app.post('/api/orders', async (req, res) => {
           create: items.map((item: any) => ({
             menuItemId: item.menuItemId,
             quantity: item.quantity,
-            price: item.price
-          }))
-        }
+            price: item.price,
+          })),
+        },
       },
       include: {
         items: {
           include: {
-            menuItem: true
-          }
-        }
-      }
+            menuItem: true,
+          },
+        },
+      },
     });
 
     res.json(order);
@@ -73,13 +74,13 @@ app.get('/api/orders', async (req, res) => {
       include: {
         items: {
           include: {
-            menuItem: true
-          }
-        }
+            menuItem: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
     res.json(orders);
   } catch (error) {
@@ -89,23 +90,23 @@ app.get('/api/orders', async (req, res) => {
 });
 
 // Get single order endpoint
-app.get('/api/orders/:id', async (req, res) => {
+app.get('/api/orders/:id', async (req: Request, res: Response) => {
   try {
     const order = await prisma.order.findUnique({
       where: { id: req.params.id },
       include: {
         items: {
           include: {
-            menuItem: true
-          }
-        }
-      }
+            menuItem: true,
+          },
+        },
+      },
     });
-    
+
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
-    
+
     res.json(order);
   } catch (error) {
     console.error('Error fetching order:', error);
@@ -121,3 +122,4 @@ app.listen(PORT, () => {
 process.on('beforeExit', async () => {
   await prisma.$disconnect();
 });
+

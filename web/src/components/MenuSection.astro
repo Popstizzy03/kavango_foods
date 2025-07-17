@@ -1,69 +1,126 @@
 ---
 import "../styles/global.css";
-
 import { Image } from 'astro:assets'
 import sausage from '../assets/sausage-goodness.png'
 import wrap from '../assets/tasty-wraps.png'
 import samosa from '../assets/beef-samosas.png'
 import combo from '../assets/combo-meals.png'
+import { apiService } from '../services/api.ts';
 
-const categories = [
-  {
-    id: 'sausages',
-    name: 'Sausage Goodness',
-    image: sausage,
-    description: 'Premium quality sausages grilled to perfection',
-    featured: true
-  },
-  {
-    id: 'wraps',
-    name: 'Tasty Wraps',
-    image: wrap,
-    description: 'Flavorful fillings wrapped in soft tortillas',
-    featured: true
-  },
-  {
-    id: 'samosas',
-    name: 'Beef Samosas',
-    image: samosa,
-    description: 'Crispy pastry filled with spiced beef',
-    featured: true
-  },
-  {
-    id: 'combos',
-    name: 'Combo Meals',
-    image: combo,
-    description: 'Perfect combinations for any appetite',
-    featured: true
-  }
-];
+const categoryImages = {
+  'sausages': sausage,
+  'wraps': wrap,
+  'samosas': samosa,
+  'combos': combo
+};
 
-const popularItems = [
-  {
-    name: 'Classic Beef Sausage',
-    price: 'K15.00',
-    image: sausage,
-    description: 'Premium beef sausage with our signature spice blend'
-  },
-  {
-    name: 'New Flava Wrap',
-    price: 'K35.00',
-    image: wrap,
-    description: 'Our newest wrap with chicken, veggies and special sauce'
-  },
-  {
-    name: 'Beef Samosa (3 pcs)',
-    price: 'K25.00',
-    image: samosa,
-    description: 'Crispy triangular pastry filled with spiced minced beef'
-  },
-  {
-    name: '4D Savage Combo',
-    price: 'K120.00',
-    image: combo,
-    description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves'
-  }
-];
+// Try to fetch menu from API, fallback to static data
+let menuItems = [];
+try {
+  menuItems = await apiService.getMenuItems();
+} catch (error) {
+  console.error('Failed to fetch menu items:', error);
+  menuItems = [];
+}
+
+// Process categories from API data
+const categories = [];
+const categoryMap = {};
+
+if (menuItems.length > 0) {
+  menuItems.forEach(item => {
+    const categoryName = item.category.name.toLowerCase();
+    if (!categoryMap[categoryName]) {
+      categoryMap[categoryName] = {
+        id: categoryName,
+        name: item.category.name,
+        image: categoryImages[categoryName] || sausage,
+        description: item.category.description || '',
+        featured: true
+      };
+    }
+  });
+  categories.push(...Object.values(categoryMap));
+}
+
+// Fallback categories if API fails
+if (categories.length === 0) {
+  categories.push(
+    {
+      id: 'sausages',
+      name: 'Sausage Goodness',
+      image: sausage,
+      description: 'Premium quality sausages grilled to perfection',
+      featured: true
+    },
+    {
+      id: 'wraps',
+      name: 'Tasty Wraps',
+      image: wrap,
+      description: 'Flavorful fillings wrapped in soft tortillas',
+      featured: true
+    },
+    {
+      id: 'samosas',
+      name: 'Beef Samosas',
+      image: samosa,
+      description: 'Crispy pastry filled with spiced beef',
+      featured: true
+    },
+    {
+      id: 'combos',
+      name: 'Combo Meals',
+      image: combo,
+      description: 'Perfect combinations for any appetite',
+      featured: true
+    }
+  );
+}
+
+// Get popular items from API or fallback
+const popularItems = [];
+if (menuItems.length > 0) {
+  // Take first 4 items as popular for now
+  popularItems.push(...menuItems.slice(0, 4).map(item => ({
+    id: item.id,
+    name: item.name,
+    price: `K${item.price.toFixed(2)}`,
+    image: categoryImages[item.category.name.toLowerCase()] || sausage,
+    description: item.description || ''
+  })));
+} else {
+  // Fallback popular items
+  popularItems.push(
+    {
+      id: 'classic-beef',
+      name: 'Classic Beef Sausage',
+      price: 'K15.00',
+      image: sausage,
+      description: 'Premium beef sausage with our signature spice blend'
+    },
+    {
+      id: 'new-flava',
+      name: 'New Flava Wrap',
+      price: 'K35.00',
+      image: wrap,
+      description: 'Our newest wrap with chicken, veggies and special sauce'
+    },
+    {
+      id: 'beef-samosa',
+      name: 'Beef Samosa (3 pcs)',
+      price: 'K25.00',
+      image: samosa,
+      description: 'Crispy triangular pastry filled with spiced minced beef'
+    },
+    {
+      id: '4d-savage',
+      name: '4D Savage Combo',
+      price: 'K120.00',
+      image: combo,
+      description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves'
+    }
+  );
+}
 ---
 
 <section id="menu" class="section bg-white">
@@ -124,7 +181,7 @@ const popularItems = [
                 <span class="text-primary font-bold">{item.price}</span>
               </div>
               <p class="text-text-light text-sm mb-4">{item.description}</p>
-              <button class="w-full btn btn-primary py-2">Add to Order</button>
+              <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>Add to Order</button>
             </div>
           </div>
         ))}
@@ -132,3 +189,61 @@ const popularItems = [
     </div>
   </div>
 </section>
+
+<script>
+  interface CartItem {
+    id: string;
+    name: string;
+    price: string;
+    quantity: number;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+    
+    addToCartButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const id = button.getAttribute('data-id');
+        const name = button.getAttribute('data-name');
+        const price = button.getAttribute('data-price');
+        
+        if (id && name && price) {
+          addToCart(id, name, price);
+          showToast(`${name} added to cart!`);
+          document.dispatchEvent(new Event('cartUpdated'));
+        }
+      });
+    });
+    
+    function addToCart(id: string, name: string, price: string): void {
+      const cart: CartItem[] = JSON.parse(localStorage.getItem('cart') || '[]');
+      const existingItem = cart.find((item: CartItem) => item.id === id);
+      
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        cart.push({ id, name, price, quantity: 1 });
+      }
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+    
+    function showToast(message: string): void {
+      // Create toast element if it doesn't exist
+      let toast = document.getElementById('menu-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'menu-toast';
+        toast.className = 'fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 bg-green-500 text-white hidden';
+        document.body.appendChild(toast);
+      }
+      
+      toast.textContent = message;
+      toast.classList.remove('hidden');
+      
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3000);
+    }
+  });
+</script>

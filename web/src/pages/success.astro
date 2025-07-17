@@ -62,39 +62,77 @@ import "../styles/global.css";
     address?: string;
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Get order details from localStorage
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Get order ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    
+    if (orderId) {
+      // Fetch order details from backend API
+      try {
+        const response = await fetch(`http://localhost:3001/api/orders/${orderId}`);
+        
+        if (response.ok) {
+          const order = await response.json();
+          displayOrderDetails({
+            orderNumber: order.id,
+            date: new Date(order.createdAt).toLocaleDateString(),
+            total: `K${order.totalAmount.toFixed(2)}`,
+            address: order.deliveryAddress || 'Not specified'
+          });
+        } else {
+          // Fallback to localStorage if API fails
+          fallbackToLocalStorage();
+        }
+      } catch (error) {
+        console.error('Error fetching order details:', error);
+        fallbackToLocalStorage();
+      }
+    } else {
+      // No order ID in URL, fallback to localStorage
+      fallbackToLocalStorage();
+    }
+    
+    // Clear cart since order is completed
+    localStorage.removeItem('cart');
+  });
+  
+  function fallbackToLocalStorage(): void {
     const orderDetails: OrderDetails = JSON.parse(localStorage.getItem('lastOrder') || '{}');
     
     if (Object.keys(orderDetails).length === 0) {
-      // No order details, probably accessed this page directly
-      // Could redirect to home, but we'll just leave minimal info
+      // No order details, use default values
+      displayOrderDetails({
+        orderNumber: 'OKV' + Math.floor(Math.random() * 10000),
+        date: new Date().toLocaleDateString(),
+        total: `K${localStorage.getItem('orderTotal') || '0.00'}`,
+        address: 'Not specified'
+      });
     } else {
-      // Display order details with null safety
-      const orderNumberElement = document.getElementById('order-number');
-      const orderDateElement = document.getElementById('order-date');
-      const orderTotalElement = document.getElementById('order-total');
-      const deliveryAddressElement = document.getElementById('delivery-address');
-      
-      // FIX: Null safety checks for all elements
-      if (orderNumberElement) {
-        orderNumberElement.textContent = orderDetails.orderNumber || 'OKV' + Math.floor(Math.random() * 10000);
-      }
-      
-      if (orderDateElement) {
-        orderDateElement.textContent = orderDetails.date || new Date().toLocaleDateString();
-      }
-      
-      if (orderTotalElement) {
-        orderTotalElement.textContent = orderDetails.total || `K${localStorage.getItem('orderTotal') || '0.00'}`;
-      }
-      
-      if (deliveryAddressElement) {
-        deliveryAddressElement.textContent = orderDetails.address || 'Not specified';
-      }
-      
-      // Clear cart since order is completed
-      localStorage.removeItem('cart');
+      displayOrderDetails(orderDetails);
     }
-  });
+  }
+  
+  function displayOrderDetails(orderDetails: OrderDetails): void {
+    const orderNumberElement = document.getElementById('order-number');
+    const orderDateElement = document.getElementById('order-date');
+    const orderTotalElement = document.getElementById('order-total');
+    const deliveryAddressElement = document.getElementById('delivery-address');
+    
+    if (orderNumberElement) {
+      orderNumberElement.textContent = orderDetails.orderNumber || 'N/A';
+    }
+    
+    if (orderDateElement) {
+      orderDateElement.textContent = orderDetails.date || 'N/A';
+    }
+    
+    if (orderTotalElement) {
+      orderTotalElement.textContent = orderDetails.total || 'N/A';
+    }
+    
+    if (deliveryAddressElement) {
+      deliveryAddressElement.textContent = orderDetails.address || 'Not specified';
+    }
+  }
 </script>

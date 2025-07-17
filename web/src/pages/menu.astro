@@ -7,6 +7,7 @@ import sausage from '../assets/sausage-goodness.png'
 import wrap from '../assets/tasty-wraps.png'
 import samosa from '../assets/beef-samosas.png'
 import combo from '../assets/combo-meals.png'
+import { apiService } from '../services/api.ts';
 
 // Define type for category images
 type CategoryImage = {
@@ -23,64 +24,84 @@ const categoryImages: CategoryImage = {
   'combos': combo
 };
 
-// Define types for menu structure
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: string;
-  popular?: boolean;
+// Try to fetch menu from API, fallback to static data
+let menuItems = [];
+try {
+  menuItems = await apiService.getMenuItems();
+} catch (error) {
+  console.error('Failed to fetch menu items:', error);
+  // Fallback to static data
+  menuItems = [];
 }
 
-interface MenuCategory {
-  id: keyof CategoryImage;
-  name: string;
-  description: string;
-  items: MenuItem[];
-}
-
-const menuCategories: MenuCategory[] = [
-  {
-    id: 'sausages',
-    name: 'Sausage Goodness',
-    description: 'Premium quality sausages grilled to perfection',
-    items: [
-      { id: 'classic-beef', name: 'Classic Beef Sausage', description: 'Premium beef sausage with our signature spice blend', price: 'K15.00', popular: true },
-      { id: 'spicy-beef', name: 'Spicy Beef Sausage', description: 'Our classic beef sausage with an extra kick of spice', price: 'K15.00' },
-      { id: 'chicken-sausage', name: 'Chicken Sausage', description: 'Lean chicken sausage with herbs and light seasoning', price: 'K15.00' }
-    ]
-  },
-  {
-    id: 'wraps',
-    name: 'Tasty Wraps',
-    description: 'Flavorful fillings wrapped in soft tortillas',
-    items: [
-      { id: 'new-flava', name: 'New Flava Wrap', description: 'Our newest wrap with chicken, veggies and special sauce', price: 'K35.00', popular: true },
-      { id: 'beef-wrap', name: 'Beef Wrap', description: 'Tender beef strips with fresh vegetables and our signature sauce', price: 'K40.00' },
-      { id: 'veggie-wrap', name: 'Veggie Wrap', description: 'A delicious mix of grilled vegetables with our homemade dressing', price: 'K30.00' }
-    ]
-  },
-  {
-    id: 'samosas',
-    name: 'Beef Samosas',
-    description: 'Crispy pastry filled with spiced beef',
-    items: [
-      { id: 'beef-samosa', name: 'Beef Samosa (3 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K25.00', popular: true },
-      { id: 'beef-samosa-5', name: 'Beef Samosa (5 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K40.00' },
-      { id: 'beef-samosa-10', name: 'Beef Samosa (10 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K75.00' }
-    ]
-  },
-  {
-    id: 'combos',
-    name: 'Combo Meals',
-    description: 'Perfect combinations for any appetite',
-    items: [
-      { id: '4d-savage', name: '4D Savage Combo', description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves', price: 'K120.00', popular: true },
-      { id: 'family-feast', name: 'Family Feast', description: 'A selection of our most popular items perfect for sharing with 4-6 people', price: 'K200.00' },
-      { id: 'duo-delight', name: 'Duo Delight', description: 'Perfect meal for two: 2 wraps, 4 sausages, and 2 drinks', price: 'K90.00' }
-    ]
+// Group menu items by category
+const groupedMenuItems = menuItems.reduce((acc: any, item: any) => {
+  const categoryName = item.category.name.toLowerCase();
+  if (!acc[categoryName]) {
+    acc[categoryName] = {
+      id: categoryName,
+      name: item.category.name,
+      description: item.category.description || '',
+      items: []
+    };
   }
-];
+  acc[categoryName].items.push({
+    id: item.id,
+    name: item.name,
+    description: item.description || '',
+    price: `K${item.price.toFixed(2)}`,
+    popular: false // We can enhance this later
+  });
+  return acc;
+}, {});
+
+const menuCategories = Object.values(groupedMenuItems);
+
+// Fallback static data if API fails
+if (menuCategories.length === 0) {
+  menuCategories.push(
+    {
+      id: 'sausages',
+      name: 'Sausage Goodness',
+      description: 'Premium quality sausages grilled to perfection',
+      items: [
+        { id: 'classic-beef', name: 'Classic Beef Sausage', description: 'Premium beef sausage with our signature spice blend', price: 'K15.00', popular: true },
+        { id: 'spicy-beef', name: 'Spicy Beef Sausage', description: 'Our classic beef sausage with an extra kick of spice', price: 'K15.00' },
+        { id: 'chicken-sausage', name: 'Chicken Sausage', description: 'Lean chicken sausage with herbs and light seasoning', price: 'K15.00' }
+      ]
+    },
+    {
+      id: 'wraps',
+      name: 'Tasty Wraps',
+      description: 'Flavorful fillings wrapped in soft tortillas',
+      items: [
+        { id: 'new-flava', name: 'New Flava Wrap', description: 'Our newest wrap with chicken, veggies and special sauce', price: 'K35.00', popular: true },
+        { id: 'beef-wrap', name: 'Beef Wrap', description: 'Tender beef strips with fresh vegetables and our signature sauce', price: 'K40.00' },
+        { id: 'veggie-wrap', name: 'Veggie Wrap', description: 'A delicious mix of grilled vegetables with our homemade dressing', price: 'K30.00' }
+      ]
+    },
+    {
+      id: 'samosas',
+      name: 'Beef Samosas',
+      description: 'Crispy pastry filled with spiced beef',
+      items: [
+        { id: 'beef-samosa', name: 'Beef Samosa (3 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K25.00', popular: true },
+        { id: 'beef-samosa-5', name: 'Beef Samosa (5 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K40.00' },
+        { id: 'beef-samosa-10', name: 'Beef Samosa (10 pcs)', description: 'Crispy triangular pastry filled with spiced minced beef', price: 'K75.00' }
+      ]
+    },
+    {
+      id: 'combos',
+      name: 'Combo Meals',
+      description: 'Perfect combinations for any appetite',
+      items: [
+        { id: '4d-savage', name: '4D Savage Combo', description: 'Includes 10 sausage rolls, 10 spring rolls, 10 beef samosas, and 10 shawarma halves', price: 'K120.00', popular: true },
+        { id: 'family-feast', name: 'Family Feast', description: 'A selection of our most popular items perfect for sharing with 4-6 people', price: 'K200.00' },
+        { id: 'duo-delight', name: 'Duo Delight', description: 'Perfect meal for two: 2 wraps, 4 sausages, and 2 drinks', price: 'K90.00' }
+      ]
+    }
+  );
+}
 ---
 
 <Layout title="Menu - Explore Our Delicious Options">
@@ -123,7 +144,7 @@ const menuCategories: MenuCategory[] = [
                       <span class="text-primary font-bold">{item.price}</span>
                     </div>
                     <p class="text-text-light text-sm mb-4">{item.description}</p>
-                    <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>
+                    <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price} data-api-item="true">
                       Add to Order
                     </button>
                   </div>

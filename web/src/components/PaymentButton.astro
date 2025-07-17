@@ -80,36 +80,28 @@
       const orderTotalData = localStorage.getItem('orderTotal');
       const total = orderTotalData || '0.00';
       
-      // Create order object
-      const order = {
-        customer: deliveryInfo,
-        items: cart,
-        total: `K${total}`,
-        paymentMethod: paymentMethod,
-        orderNumber: 'OKV' + Math.floor(Math.random() * 10000),
-        date: new Date().toLocaleDateString(),
-        status: 'pending'
-      };
-      
-      // Store order in localStorage (in a real app, this would be sent to a server)
-      localStorage.setItem('lastOrder', JSON.stringify({
-        ...order,
-        items: undefined // Don't duplicate the items in storage
-      }));
-      localStorage.setItem('lastOrderItems', JSON.stringify(cart));
-      
-      // If cash on delivery, redirect to success page
+      // Process payment based on method
       if (paymentMethod === 'cash') {
-        window.location.href = '/success';
-        return;
+        // For cash on delivery, trigger the form submission directly
+        // The form submission will handle the API call
+        const formEvent = new Event('submit', { bubbles: true, cancelable: true });
+        if (deliveryForm) {
+          deliveryForm.dispatchEvent(formEvent);
+        }
+      } else {
+        // For mobile money, we would integrate with Flutterwave here
+        // For demo purposes, we'll simulate a payment and then submit the order
+        showProcessingPayment(() => {
+          // After payment processing, submit the order
+          const formEvent = new Event('submit', { bubbles: true, cancelable: true });
+          if (deliveryForm) {
+            deliveryForm.dispatchEvent(formEvent);
+          }
+        });
       }
-      
-      // For mobile money, we would integrate with Flutterwave here
-      // For demo purposes, we'll just simulate a payment
-      showProcessingPayment();
     });
     
-    function showProcessingPayment() {
+    function showProcessingPayment(callback?: () => void) {
       // Get the complete order button again to ensure it exists
       const completeOrderBtn = document.getElementById('complete-order-btn') as HTMLButtonElement | null;
       
@@ -130,7 +122,9 @@
       
       // Simulate payment processing
       setTimeout(() => {
-        window.location.href = '/success';
+        if (callback) {
+          callback();
+        }
       }, 2000);
     }
   });
