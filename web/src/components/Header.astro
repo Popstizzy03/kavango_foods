@@ -45,11 +45,11 @@ const hamburgerIcon = `<line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" 
     <span>{phoneNumber.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}</span>
   </a>
 
-    <a href="/cart" class="relative flex items-center text-text-light hover:text-primary">
+    <a href="/cart" class="relative flex items-center bg-primary text-white hover:bg-primary-dark px-3 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
       <Fragment set:html={cartIcon} />
     </svg>
-    <span id="header-cart-count" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">0</span>
+    <span id="header-cart-count" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full animate-pulse">0</span>
   </a>
       
       <a href="/menu" class="btn btn-primary bg-opacity-80 hover:bg-opacity-100 transition-all">Browse Menu</a>

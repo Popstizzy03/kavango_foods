@@ -165,26 +165,45 @@ if (menuItems.length > 0) {
         </a>
       </div>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {popularItems.map(item => (
-          <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
-            <div class="h-40 overflow-hidden">
-              <Image 
-                src={item.image} 
-                alt={item.name}
-                class="w-full h-full object-cover"
-              />
-            </div>
-            <div class="p-4">
-              <div class="flex justify-between items-start mb-2">
-                <h4 class="font-semibold">{item.name}</h4>
-                <span class="text-primary font-bold">{item.price}</span>
+      <div class="relative">
+        <div class="carousel-container overflow-hidden">
+          <div class="carousel-track flex transition-transform duration-300" id="popular-items-carousel">
+            {popularItems.map(item => (
+              <div class="carousel-item flex-shrink-0 w-full sm:w-1/2 lg:w-1/4 px-3">
+                <div class="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow duration-300">
+                  <div class="h-40 overflow-hidden">
+                    <Image 
+                      src={item.image} 
+                      alt={item.name}
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                      <h4 class="font-semibold">{item.name}</h4>
+                      <span class="text-primary font-bold">{item.price}</span>
+                    </div>
+                    <p class="text-text-light text-sm mb-4">{item.description}</p>
+                    <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>Add to Order</button>
+                  </div>
+                </div>
               </div>
-              <p class="text-text-light text-sm mb-4">{item.description}</p>
-              <button class="add-to-cart-btn w-full btn btn-primary py-2" data-id={item.id} data-name={item.name} data-price={item.price}>Add to Order</button>
-            </div>
+            ))}
           </div>
-        ))}
+        </div>
+        
+        <div class="carousel-controls flex justify-center gap-4 mt-6">
+          <button class="carousel-prev bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-2 transition-colors" id="popular-prev">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button class="carousel-next bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-2 transition-colors" id="popular-next">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -245,5 +264,47 @@ if (menuItems.length > 0) {
         toast.classList.add('hidden');
       }, 3000);
     }
+    
+    // Initialize popular items carousel
+    function initPopularItemsCarousel(): void {
+      const track = document.getElementById('popular-items-carousel');
+      const prevBtn = document.getElementById('popular-prev');
+      const nextBtn = document.getElementById('popular-next');
+      
+      if (!track || !prevBtn || !nextBtn) return;
+      
+      let currentIndex = 0;
+      const items = track.querySelectorAll('.carousel-item');
+      const totalItems = items.length;
+      const itemsPerView = window.innerWidth >= 1024 ? 4 : window.innerWidth >= 640 ? 2 : 1;
+      const maxIndex = Math.max(0, totalItems - itemsPerView);
+      
+      function updateCarousel() {
+        const translateX = -(currentIndex * (100 / itemsPerView));
+        track.style.transform = `translateX(${translateX}%)`;
+      }
+      
+      prevBtn.addEventListener('click', () => {
+        currentIndex = Math.max(0, currentIndex - 1);
+        updateCarousel();
+      });
+      
+      nextBtn.addEventListener('click', () => {
+        currentIndex = Math.min(maxIndex, currentIndex + 1);
+        updateCarousel();
+      });
+      
+      // Handle window resize
+      window.addEventListener('resize', () => {
+        const newItemsPerView = window.innerWidth >= 1024 ? 4 : window.innerWidth >= 640 ? 2 : 1;
+        const newMaxIndex = Math.max(0, totalItems - newItemsPerView);
+        if (currentIndex > newMaxIndex) {
+          currentIndex = newMaxIndex;
+        }
+        updateCarousel();
+      });
+    }
+    
+    initPopularItemsCarousel();
   });
 </script>
